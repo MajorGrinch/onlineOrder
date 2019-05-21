@@ -1,0 +1,15 @@
+{% extends 'mainpage/base.html' %}
+
+{% block content %}
+
+<h1>Welcome, this is mainpage</h1>
+<h2>Now is {{curr_time}}</h2>
+
+{% if user.is_authenticated %}
+    <p>Username : {{ user.username }}</p>
+    <p>Last login : {{ user.last_login }}</p>
+    <p>Email: {{ user.email }}</p>
+
+{% endif %}
+
+{% endblock %}
