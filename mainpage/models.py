@@ -25,7 +25,7 @@ class Restaurant(models.Model):
     starting_price = models.IntegerField(default=0)
     delivering_fee = models.IntegerField(default=0)
     rating = models.DecimalField(max_digits=2, decimal_places=1)
-    image = models.ImageField(upload_to='restaurant_images/')
+    image = models.ImageField(upload_to='restaurant_images/', blank=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     accumulated_score = models.FloatField(default=0)
     rated_times = models.IntegerField(default=0)
@@ -49,3 +49,16 @@ class SalesInfo(models.Model):
     def __str__(self):
         return '{}, {}, {}'.format(self.date.isoformat(), self.restaurant,
                                    self.sales_num)
+
+class MenuItem(models.Model):
+    title = models.CharField(max_length=50)
+    price = models.IntegerField(default=0)
+    description = models.CharField(max_length=100)
+    restaurant = models.ForeignKey(Restaurant, on_delete=models.CASCADE)
+    image = models.ImageField(upload_to='menu_item/', blank=True)
+
+    class Meta:
+        db_table = 'menuitem'
+
+    def __str__(self):
+        return self.title + self.restaurant.name

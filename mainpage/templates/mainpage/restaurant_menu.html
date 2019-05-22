@@ -1,0 +1,29 @@
+{% extends 'mainpage/base.html' %}
+
+{% block content %}
+
+<br/>
+
+{% if menuitem_list %}
+<div class="card-deck">
+    {% for menu_item in menuitem_list %}
+        {% if forloop.counter|divisibleby:4 %}
+        </div>
+        <br/>
+        <div class="card-deck">
+        {% endif %}
+        <div class="card" style="max-width: 22rem;">
+            <img style="height: 18rem;" src="{{MEDIA_URL}}{{menu_item.image}}" class="card-img-top" alt="...">
+            <div class="card-body">
+                <h5 class="card-title">{{menu_item.title}}</h5>
+                <p class="card-text">{{menu_item.description}}</p>
+            </div>
+            <div class="card-footer">
+                <small class="text-muted">Rating</small>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+{% endblock %}

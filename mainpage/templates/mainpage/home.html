@@ -21,7 +21,7 @@
         <div class="card" style="max-width: 22rem;">
             <img style="height: 18rem;" src="{{MEDIA_URL}}{{restaurant.image}}" class="card-img-top" alt="...">
             <div class="card-body">
-                <h5 class="card-title">{{restaurant.name}}</h5>
+                <a href="{% url 'mainpage:menu' restaurant.id %}"><h5 class="card-title">{{restaurant.name}}</h5></a>
                 <p class="card-text">{{restaurant.description}}</p>
             </div>
             <div class="card-footer">
