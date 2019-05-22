@@ -34,10 +34,6 @@ class UserCreationForm(forms.ModelForm):
         model = User
         fields = ('username','email', 'password1', 'password2',)
 
-    def is_valid(self):
-        """Return True if the form has no errors, or False otherwise."""
-        return self.is_bound and not self.errors
-
     def save(self, commit=True):
         # Save the provided password in hashed format
         user = super().save(commit=False)

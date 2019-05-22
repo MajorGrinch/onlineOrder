@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
-
 <head>
+    {% load static %}
     <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -30,6 +30,11 @@
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'authenticate:edit_user_profile' %}">Edit Profile</a>
                 </li>
+                    {% if user.is_restaurant %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">My Restaurant</a>
+                    </li>
+                    {% endif %}
 
                 {% else %}
                 <li class="nav-item">

@@ -25,7 +25,8 @@ SECRET_KEY = '(9!(ix#8^y5an--ya5xwy1-qi**m^x^=c8-0j2!&3j9pdb=gjp'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+# ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["192.168.1.5", "127.0.0.1"]
 
 
 # Application definition
@@ -64,6 +65,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'django.template.context_processors.media'
             ],
         },
     },
@@ -138,3 +140,7 @@ LOGOUT_REDIRECT_URL = '/'
 LOGIN_URL = '/authenticate/login/'
 
 AUTH_USER_MODEL = 'authenticate.User'
+
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+MEDIA_URL = '/media/'

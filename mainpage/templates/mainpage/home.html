@@ -2,14 +2,34 @@
 
 {% block content %}
 
-<h1>Welcome, this is mainpage</h1>
-<h2>Now is {{curr_time}}</h2>
-
 {% if user.is_authenticated %}
-    <p>Username : {{ user.username }}</p>
-    <p>Last login : {{ user.last_login }}</p>
-    <p>Email: {{ user.email }}</p>
+    <h1>Welcome, {{ user.username }}</h1>
+{% else %}
+    <h1>Welcome to online food take-out</h1>
+{% endif %}
 
+<br/>
+
+{% if restaurant_list %}
+<div class="card-deck">
+    {% for restaurant in restaurant_list %}
+        {% if forloop.counter|divisibleby:4 %}
+        </div>
+        <br/>
+        <div class="card-deck">
+        {% endif %}
+        <div class="card" style="max-width: 22rem;">
+            <img style="height: 18rem;" src="{{MEDIA_URL}}{{restaurant.image}}" class="card-img-top" alt="...">
+            <div class="card-body">
+                <h5 class="card-title">{{restaurant.name}}</h5>
+                <p class="card-text">{{restaurant.description}}</p>
+            </div>
+            <div class="card-footer">
+                <small class="text-muted">Rating: {{restaurant.rating}}</small>
+            </div>
+        </div>
+    {% endfor %}
+</div>
 {% endif %}
 
 {% endblock %}

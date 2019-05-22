@@ -34,5 +34,5 @@ class User(AbstractBaseUser):
         db_table = 'user'
 
     def __str__(self):
-        return self.username
+        return '{name}--{id}'.format(name=self.username, id=self.id)
 

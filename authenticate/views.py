@@ -25,6 +25,7 @@ class MyLoginView(LoginView):
 
 
 def register_user(request):
+    # TODO: if password1 != password2, make it fail
     if request.method == 'POST':
         form = UserCreationForm(request.POST)
         if form.is_valid():
