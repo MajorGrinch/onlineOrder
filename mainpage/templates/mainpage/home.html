@@ -13,7 +13,7 @@
 {% if restaurant_list %}
 <div class="card-deck">
     {% for restaurant in restaurant_list %}
-        {% if forloop.counter|divisibleby:4 %}
+        {% if forloop.counter0|divisibleby:3 and forloop.counter0 != 0 %}
         </div>
         <br/>
         <div class="card-deck">

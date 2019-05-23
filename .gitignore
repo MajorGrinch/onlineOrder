@@ -1,3 +1,5 @@
 __pycache__/
 .DS_Store
 migrations/
+node_modules/
+package-lock.json

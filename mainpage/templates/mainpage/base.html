@@ -1,5 +1,6 @@
 <!doctype html>
 <html lang="en">
+
 <head>
     {% load static %}
     <!-- Required meta tags -->
@@ -30,11 +31,17 @@
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'authenticate:edit_user_profile' %}">Edit Profile</a>
                 </li>
-                    {% if user.is_restaurant %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">My Restaurant</a>
-                    </li>
-                    {% endif %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'mainpage:showCart' %}">Cart</a>
+                </li>
+                <li class="nav-item" id="flush_cart_btn">
+                    <a class="nav-link" id="flush_cart_btn" href="#">Flush Cart</a>
+                </li>
+                {% if user.is_restaurant %}
+                <li class="nav-item">
+                    <a class="nav-link" href="#">My Restaurant</a>
+                </li>
+                {% endif %}
 
                 {% else %}
                 <li class="nav-item">
@@ -75,6 +82,35 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
         integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
         crossorigin="anonymous"></script>
+    <script src="{% static 'mainpage/js/jquery-3.4.1.js' %}"></script>
+    <script src="{% static 'mainpage/js/js.cookie.js' %}"></script>
+    <script>
+        function getCart() {
+            var cart = Cookies.getJSON('cart');
+            if (cart === undefined) {
+                cart = {};
+            }
+            return cart;
+        }
+
+        function flushCart(){
+            Cookies.remove('cart');
+        }
+
+        $("#flush_cart_btn").click(function(){
+            $.post("{% url 'mainpage:flushCart' %}", {
+                csrfmiddlewaretoken: Cookies.get('csrftoken')
+            }).done(function(data){
+                if(data === '1'){
+                    flushCart();
+                    alert('Cart flushed!');
+                }
+            })
+        });
+
+    </script>
+    {% block js_content %}
+    {% endblock %}
 </body>
 
 </html>

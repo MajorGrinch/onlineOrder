@@ -1,29 +1,80 @@
 {% extends 'mainpage/base.html' %}
+{% load static %}
 
 {% block content %}
 
-<br/>
+<br />
 
 {% if menuitem_list %}
 <div class="card-deck">
     {% for menu_item in menuitem_list %}
-        {% if forloop.counter|divisibleby:4 %}
+        {% if forloop.counter0|divisibleby:4 and forloop.counter0 != 0 %}
         </div>
-        <br/>
+        <br />
         <div class="card-deck">
         {% endif %}
-        <div class="card" style="max-width: 22rem;">
-            <img style="height: 18rem;" src="{{MEDIA_URL}}{{menu_item.image}}" class="card-img-top" alt="...">
-            <div class="card-body">
-                <h5 class="card-title">{{menu_item.title}}</h5>
-                <p class="card-text">{{menu_item.description}}</p>
-            </div>
-            <div class="card-footer">
-                <small class="text-muted">Rating</small>
-            </div>
+    <div class="card" style="max-width: 16rem;">
+        <img style="height: 14rem;" src="{{MEDIA_URL}}{{menu_item.image}}" class="card-img-top" alt="...">
+        <div class="card-body">
+            <h5 class="card-title">{{menu_item.title}}</h5>
+            <p class="card-text">{{menu_item.description}}</p>
         </div>
+        <div class="card-footer">
+            <button type="button" class="btn btn-success add_cart_btn" val="{{ menu_item.id }}">Add to cart</button>
+        </div>
+    </div>
     {% endfor %}
 </div>
 {% endif %}
 
+{% endblock %}
+
+{% block js_content %}
+
+<script>
+
+    function addToCart(restaurant_id, menu_item_id, item_info, restaurant_name){
+        cart = getCart();
+        // console.log(cart);
+        // console.log(restaurant_id);
+        // console.log(menu_item_id);
+        // console.log(typeof(restaurant_id));
+        // console.log(typeof(menu_item_id));
+        if(cart[restaurant_id] === undefined){
+            cart[restaurant_id] = {'name': restaurant_name, 'iteminfo_list': {}};
+            item_info['quantity'] = 1;
+            // cart[restaurant_id][menu_item_id] = item_info;
+            cart[restaurant_id]['iteminfo_list'][menu_item_id] = item_info;
+            console.log("b1");
+        }else if(cart[restaurant_id]['iteminfo_list'][menu_item_id] === undefined){
+            item_info['quantity'] = 1;
+            cart[restaurant_id]['iteminfo_list'][menu_item_id] = item_info;
+            console.log("b2")
+        }else{
+            console.log("b3");
+            cart[restaurant_id]['iteminfo_list'][menu_item_id]['quantity'] += 1;
+        }
+        // console.log(cart);
+        Cookies.set('cart', cart);
+    }
+
+    $(".add_cart_btn").click(function () {
+        console.log('You just add the '+ $(this).attr('val'));
+        var menu_item_id = $(this).attr('val');
+        $.post("{% url 'mainpage:addCart' %}", {
+            item_id: menu_item_id,
+            csrfmiddlewaretoken: Cookies.get('csrftoken')
+            // restaurant_id: "{{ restaurant_id }}"
+        }).done(function (data) {
+                if (data !== '0') {
+                    // console.log(data);
+                    var item_info = JSON.parse(data);
+                    console.log(item_info);
+                    addToCart("restaurant-{{restaurant_id}}", "menu-"+menu_item_id, item_info, "{{restaurant_name}}");
+                } else {
+                    console.log('add failed');
+                }
+            });
+    });
+</script>
 {% endblock %}
