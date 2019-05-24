@@ -17,7 +17,7 @@ class MyLoginView(LoginView):
         if user is not None:
             login(request, user)
             user.last_login = timezone.now()
-            messages.success(request, ('You have been logged in!'))
+            # messages.success(request, ('You have been logged in!'))
             return redirect('mainpage:home')
         else:
             messages.success(request, 'Error logging in, please try again!')

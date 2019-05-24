@@ -1,0 +1,23 @@
+body{
+    background-color: #e9ecef;
+}
+
+.jumbotron{
+    padding: 0.5rem 0rem;
+    text-align: center;
+    width:65%;
+    margin-left: auto;
+    margin-right: auto;
+    border-bottom: solid;
+}
+
+.jumbotron b{
+    color: black;
+    background-color: #f90;
+    font-size: 3rem;
+}
+
+.jumbotron span{
+    background: black;
+    color: white;
+}

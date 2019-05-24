@@ -33,7 +33,7 @@
 
 <script>
 
-    function addToCart(restaurant_id, menu_item_id, item_info, restaurant_name){
+    function addToCart(restaurant_id, menu_item_id, item_info, restaurant_name, username){
         cart = getCart();
         // console.log(cart);
         // console.log(restaurant_id);
@@ -41,7 +41,7 @@
         // console.log(typeof(restaurant_id));
         // console.log(typeof(menu_item_id));
         if(cart[restaurant_id] === undefined){
-            cart[restaurant_id] = {'name': restaurant_name, 'iteminfo_list': {}};
+            cart[restaurant_id] = {'id': restaurant_id,'name': restaurant_name, 'iteminfo_list': {}};
             item_info['quantity'] = 1;
             // cart[restaurant_id][menu_item_id] = item_info;
             cart[restaurant_id]['iteminfo_list'][menu_item_id] = item_info;
@@ -55,7 +55,7 @@
             cart[restaurant_id]['iteminfo_list'][menu_item_id]['quantity'] += 1;
         }
         // console.log(cart);
-        Cookies.set('cart', cart);
+        Cookies.set(username+'-cart', cart);
     }
 
     $(".add_cart_btn").click(function () {
@@ -70,7 +70,7 @@
                     // console.log(data);
                     var item_info = JSON.parse(data);
                     console.log(item_info);
-                    addToCart("restaurant-{{restaurant_id}}", "menu-"+menu_item_id, item_info, "{{restaurant_name}}");
+                    addToCart("restaurant-{{restaurant_id}}", "menu-"+menu_item_id, item_info, "{{restaurant_name}}", "{{user.username}}");
                 } else {
                     console.log('add failed');
                 }

@@ -16,7 +16,7 @@ class Address(models.Model):
         db_table = 'address'
 
     def __str__(self):
-        return '{name}, {address}, {user}'.format(
+        return '{0}, {1}, {2}'.format(
             self.full_name, self.street_address1, self.user)
 
 
@@ -62,3 +62,32 @@ class MenuItem(models.Model):
 
     def __str__(self):
         return self.title + self.restaurant.name
+
+class Order(models.Model):
+    order_num = models.CharField(max_length=30)
+    order_time = models.DateTimeField(auto_now=True)
+    subtotal = models.IntegerField()
+    status = models.SmallIntegerField(default=0)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    restaurant = models.ForeignKey(Restaurant, null=True, on_delete=models.SET_NULL)
+    address = models.ForeignKey(Address, null=True ,on_delete=models.SET_NULL)
+
+    class Meta:
+        db_table = 'order'
+
+    def __str__(self):
+        return self.order_num
+
+
+
+class OrderItem(models.Model):
+    quantity = models.IntegerField()
+    unit_price = models.IntegerField()
+    menuitem = models.ForeignKey(MenuItem, null=True ,on_delete=models.SET_NULL)
+    order = models.ForeignKey(Order, on_delete=models.CASCADE)
+
+    class Meta:
+        db_table = 'orderitem'
+
+    def __str__(self):
+        return str(self.order) + '-' + str(self.menuitem) + '-' + str(self.quantity)

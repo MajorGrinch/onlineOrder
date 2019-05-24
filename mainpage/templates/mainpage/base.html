@@ -10,33 +10,54 @@
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
         integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    {% block css_content %}
+    {% endblock %}
 
     <title>Take-out online</title>
 </head>
 
 <body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <nav class="navbar fixed-top navbar-expand-lg navbar-light bg-light">
         <a class="navbar-brand" href="{% url 'mainpage:home' %}">Online Take-out</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
-            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
+        <!-- <a class="navbar-brand" href="{% url 'mainpage:home' %}">Online Take-out</a> -->
+        {% if user.is_authenticated %}
+            <span>Welcome, {{user.username}}</span>
+        {% endif %}
+        <p></p>
 
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav ml-auto">
                 {% if user.is_authenticated %}
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Cart
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                        <a class="dropdown-item" href="{% url 'mainpage:showCart' %}">Show Cart</a>
+                        <!-- <a class="dropdown-item" href="#">Another action</a> -->
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="#" id="flush_cart_btn">Flush Cart</a>
+                    </div>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Account
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                        <a class="dropdown-item" href="{% url 'authenticate:edit_user_profile' %}">Edit profile</a>
+                        <a class="dropdown-item" href="{% url 'mainpage:manageAddress' %}">Your Addresses</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="#" >Other</a>
+                    </div>
+                </li>
+                <!-- <li class="nav-item">
+                    <a class="nav-link" href="{% url 'authenticate:edit_user_profile' %}">Account</a>
+                </li> -->
+
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'authenticate:logout' %}">Logout</a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'authenticate:edit_user_profile' %}">Edit Profile</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'mainpage:showCart' %}">Cart</a>
-                </li>
-                <li class="nav-item" id="flush_cart_btn">
-                    <a class="nav-link" id="flush_cart_btn" href="#">Flush Cart</a>
-                </li>
+
                 {% if user.is_restaurant %}
                 <li class="nav-item">
                     <a class="nav-link" href="#">My Restaurant</a>
@@ -55,6 +76,10 @@
         </div>
     </nav>
     <br />
+    <div class="row" style="height: 4rem;"></div>
+
+    {% block jumbotron_content %}
+    {% endblock %}
     <div class="container">
 
         {% if messages %}
@@ -85,8 +110,12 @@
     <script src="{% static 'mainpage/js/jquery-3.4.1.js' %}"></script>
     <script src="{% static 'mainpage/js/js.cookie.js' %}"></script>
     <script>
+        {% if user.is_authenticated %}
+        Cookies.set('current_user', "{{user.username}}");
+        {% endif %}
         function getCart() {
-            var cart = Cookies.getJSON('cart');
+            var username = Cookies.get('current_user');
+            var cart = Cookies.getJSON(username+'-cart');
             if (cart === undefined) {
                 cart = {};
             }
@@ -94,16 +123,24 @@
         }
 
         function flushCart(){
-            Cookies.remove('cart');
+            var username = Cookies.get('current_user');
+            Cookies.remove(username + '-cart');
+            console.log(username + '-cart');
         }
 
         $("#flush_cart_btn").click(function(){
+            var confirmation = window.confirm("You sure to empty your shopping cart?");
+            if(!confirmation){
+                return;
+            }
             $.post("{% url 'mainpage:flushCart' %}", {
                 csrfmiddlewaretoken: Cookies.get('csrftoken')
             }).done(function(data){
                 if(data === '1'){
                     flushCart();
                     alert('Cart flushed!');
+                    // $('#my_cart_div').empty();
+                    location.reload();
                 }
             })
         });

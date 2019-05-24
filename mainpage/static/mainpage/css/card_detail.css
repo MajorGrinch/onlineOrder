@@ -1,0 +1,12 @@
+b.item_price{
+    color: red;
+}
+
+.subtotal_span{
+    font-size: 1.5rem;
+}
+
+.subtotal_price{
+    font-size: 1.5rem;
+    color: red;
+}
