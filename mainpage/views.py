@@ -176,16 +176,17 @@ def edit_address(request, address_id):
 @transaction.atomic
 def place_order(request):
     if request.method == 'POST':
-        data = json.loads(request.body)['restaurant_cart']
-        restaurant_id = int(data['id'][11:])
+        data = json.loads(request.body)
+        address_id = data['address_id']
+        restaurant_cart = data['restaurant_cart']
+        restaurant_id = int(restaurant_cart['id'][11:])
         user_id = request.user.id
-        # print(data)
-        address = Address.objects.get(user_id=user_id, is_default=True)
+        # address = Address.objects.get(user_id=user_id, is_default=True)
         order = Order(order_num='{:%Y%m%d%H%M%S}-{:d}'.format(timezone.now(), user_id),
-                subtotal=data['subtotal'], user_id=user_id, restaurant_id=restaurant_id,
-                address=address)
+                subtotal=restaurant_cart['subtotal'], user_id=user_id, restaurant_id=restaurant_id,
+                address_id=address_id)
         order.save()
-        iteminfo_list = data['iteminfo_list']
+        iteminfo_list = restaurant_cart['iteminfo_list']
         print(iteminfo_list)
         for menuitem in iteminfo_list:
             menuitem_id = int(menuitem[5:])
@@ -193,4 +194,4 @@ def place_order(request):
             orderitem = OrderItem(quantity=iteminfo['quantity'], unit_price=iteminfo['price'],
                     menuitem_id=menuitem_id, order=order)
             orderitem.save()
-        return HttpResponse(data['id'])
+        return HttpResponse(restaurant_cart['id'])

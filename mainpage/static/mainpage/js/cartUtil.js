@@ -52,7 +52,7 @@ Vue.component('restaurant-card', {
                             <span>(\${{getDeliverFee(restaurant)}} deliver fee)</span>
                         </div>
                         <div class="col text-right">
-                            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#choose_address_modal" id="toggle_choose_address_modal_btn" @click="getAddressList">
+                            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#choose_address_modal" id="toggle_choose_address_modal_btn" @click="getAddressList(restaurant.id)">
                                 Place Order
                             </button>
                         </div>
@@ -84,7 +84,7 @@ Vue.component('restaurant-card', {
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-primary">Place Order</button>
+                        <button type="button" class="btn btn-primary" @click="placeOrder">Place Order</button>
                     </div>
                 </div>
             </div>
@@ -94,7 +94,9 @@ Vue.component('restaurant-card', {
         return {
             MEDIA_URL: 'http://127.0.0.1:8000/media/',
             root_url: 'http://127.0.0.1:8000/',
-            address_list:[]
+            address_list:[],
+            selected_restaurant : null,
+            selected_address : null,
         }
     },
     computed:{
@@ -132,9 +134,13 @@ Vue.component('restaurant-card', {
             // console.log(restaurant.delivering_fee);
             return restaurant.delivering_fee;
         },
-        placeOrder(restaurant){
+        placeOrder(){
             // console.log(restaurant);
-            this.$http.post(this.root_url + 'place_order/', {restaurant_cart: restaurant},
+            this.$http.post(this.root_url + 'place_order/',
+            {
+                restaurant_cart: this.cart[this.selected_restaurant],
+                address_id: this.selected_address
+            },
             {
                 headers: {'X-CSRFToken': Cookies.get('csrftoken')}
             }).then(response => {
@@ -142,11 +148,12 @@ Vue.component('restaurant-card', {
                 console.log('delete ' + restaurant_id);
                 Vue.delete(this.cart, restaurant_id);
                 this.saveCart2Cookie();
+                location.reload();
             }, response => {
                 console.log(response);
             })
         },
-        getAddressList(){
+        getAddressList(restaurant_id){
             this.$http.post(this.root_url + 'cart_detail/', {}, {
                 headers: {'X-CSRFToken': Cookies.get('csrftoken')}
             }).then(response => {
@@ -157,9 +164,11 @@ Vue.component('restaurant-card', {
                     this.address_list.push(data[index])
                 }
             })
+            this.selected_restaurant = restaurant_id;
         },
         useAddress(address){
             console.log(address);
+            this.selected_address = address.pk;
         }
     }
 })
