@@ -1,10 +1,11 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.views.generic import ListView
 from django.utils import timezone
 from .models import Restaurant, MenuItem, Order, OrderItem, Address
 from django.http import HttpResponse
 import json
 from django.db import transaction
+from .forms import AddressCreationForm, AddressChangeForm
 
 # Create your views here.
 
@@ -96,6 +97,7 @@ def cancal_default_address(request):
 
 @transaction.atomic
 def set_default_address(request):
+    """set the default address of the current user"""
     if request.method == 'POST':
         data = json.loads(request.body)
         address_id = data['address_id']
@@ -107,3 +109,57 @@ def set_default_address(request):
         new_default_address.save()
         return HttpResponse(1)
 
+
+def add_address(request):
+    """add a address for the current user"""
+    if request.method == 'POST':
+        try:
+            form = AddressCreationForm(request.POST)
+            if form.is_valid():
+                new_address = form.save(commit=False)
+                new_address.user = request.user
+                new_address.save()
+                return redirect('mainpage:manageAddress')
+        except:
+            return render(request, 'mainpage/address_creation_page.html', {'form': form})
+    else:
+        form = AddressCreationForm()
+        context = {'form': form}
+        return render(request, 'mainpage/address_creation_page.html', context)
+
+
+def delete_address(request):
+    """delete address for the current user"""
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            address_id = data['address_id']
+            address = Address.objects.get(pk=address_id)
+            if address.is_default:
+                raise ValueError('Default_Address')
+            address.delete()
+            return HttpResponse(1)
+        except ValueError as e:
+            return HttpResponse(e)
+        except:
+            return HttpResponse(0)
+
+
+def jump_edit_address_page(request, address_id):
+    address = Address.objects.get(pk=address_id)
+    form = AddressChangeForm(instance=address)
+    return render(request, 'mainpage/address_change_page.html', {'form': form})
+
+def edit_address(request, address_id):
+    if request.method == 'POST':
+        address = Address.objects.get(pk=address_id)
+        form = AddressChangeForm(request.POST, instance=address)
+        if form.is_valid():
+            form.save()
+            return redirect('mainpage:manageAddress')
+        else:
+            return render(request, 'mainpage/address_change_page.html', {'form': form})
+    else:
+        address = Address.objects.get(pk=address_id)
+        form = AddressChangeForm(instance=address)
+        return render(request, 'mainpage/address_change_page.html', {'form': form})

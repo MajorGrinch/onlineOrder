@@ -1,0 +1,23 @@
+{% extends 'mainpage/base.html' %}
+{% load static %}
+
+{% block css_content %}
+{% endblock %}
+
+{% block content %}
+
+<div class="col-md-6 offset-md-3">
+    <form method="POST" action="{% url 'mainpage:addAddress' %}">
+        {% csrf_token %}
+        {% if form %}
+        {{form}}
+        {% endif %}
+        <br/>
+        <div class="text-center">
+            <button type="submit" class="btn btn-primary">Add</button>
+        </div>
+    </form>
+    <br/>
+</div>
+
+{% endblock %}
