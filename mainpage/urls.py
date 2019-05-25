@@ -12,6 +12,5 @@ urlpatterns = [
     path('set_default_address/', views.set_default_address, name="setDefaultAddress"),
     path('add_address/', views.add_address, name="addAddress"),
     path('delete_address/', views.delete_address, name="delAddress"),
-    path('jump_edit_address/<int:address_id>/', views.jump_edit_address_page, name="jumpEditAddress"),
     path('edit_address/<int:address_id>/', views.edit_address, name="editAddress")
 ]

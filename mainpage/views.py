@@ -145,10 +145,6 @@ def delete_address(request):
             return HttpResponse(0)
 
 
-def jump_edit_address_page(request, address_id):
-    address = Address.objects.get(pk=address_id)
-    form = AddressChangeForm(instance=address)
-    return render(request, 'mainpage/address_change_page.html', {'form': form})
 
 def edit_address(request, address_id):
     if request.method == 'POST':

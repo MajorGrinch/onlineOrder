@@ -31,7 +31,6 @@
                 <p class="card-text">Phone number: {{address.phone_number}}</p>
             </div>
             <div class="card-footer">
-                <!-- <a href="#" class="card-link" @click="jumpToEditAddress({{address.id}})">Edit</a> -->
                 <a href="{% url 'mainpage:editAddress' address.id %}" class="card-link">Edit</a>
                 {% if not address.is_default %}
                 <a href="#" class="card-link" @click="setDefaultAddress({{address.id}})">Set as default</a>
@@ -105,17 +104,6 @@ new Vue({
                 console.log(response)
             })
         },
-        jumpToEditAddress(address_id){
-            this.$http.post(this.base_url + 'edit_address/', {address_id: address_id},
-            {
-                headers: {'X-CSRFToken': Cookies.get('csrftoken')}
-            })
-            .then(response => {
-                console.log(response)
-            }, response => {
-                console.log(response)
-            })
-        }
     }
 })
 </script>
