@@ -10,104 +10,18 @@
 <br />
 
 <div id="cart_app_div">
-    <!-- <div class="card restaurant-card">
-        <div class="card-header">
-            <b>Webster Wok</b>
-        </div>
-        <div class="card-body">
-            <div class="card mb-3" style="max-width: 100%;">
-                <div class="row no-gutters">
-                    <div class="col-md-3">
-                        <img src="{{MEDIA_URL}}menu_item/shuizhu_fish.jpeg" class="card-img" alt="...">
-                    </div>
-                    <div class="col-md-9">
-                        <div class="card-body">
-                            <h5 class="card-title">Boiled fish</h5>
-                            <p class="card-text">This is boiled fish.</p>
-                            <div class="row">
-                                <div class="col">
-                                    <label>Quantity: &nbsp</label>
-                                    <select class="custom-select custom-select-sm" style="width:auto;">
-                                        <option>1</option>
-                                        <option>2</option>
-                                        <option>3</option>
-                                        <option>4+</option>
-                                    </select>
-                                </div>
-                                <div class="col text-right">
-                                        <label>Unit Price: &nbsp</label><b class="item-price">10</b>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div> -->
     <restaurant-card :cart="cart"></restaurant-card>
 </div>
+
 
 {% endblock %}
 
 
 {% block js_content %}
 <script src="{% static 'mainpage/js/vue.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue-resource@1.5.1"></script>
 <script src="{% static 'mainpage/js/cartUtil.js' %}"></script>
 <script>
-    // function listCart() {
-    //     cart = getCart();
-    //     console.log(cart);
-    //     my_cart_div = $("#my_cart_div");
-    //     $.each(cart, function (restaurant, restaurant_cart_info) {
-    //         my_cart_div.append(`<div class="card" id="` + restaurant + "-card" + `"><div class="card-header"><b>`
-    //             + restaurant_cart_info['name'] + `</b></div><div class="card-body"></div></div>`)
-    //         // console.log('----------');
-    //         card_id = restaurant;
-    //         card = my_cart_div.find('#' + card_id + '-card');
-    //         restaurant_card_body = card.find('.card-body');
-    //         // console.log(restaurant);
-    //         iteminfo_list = restaurant_cart_info['iteminfo_list']
-    //         $.each(iteminfo_list, function (item, iteminfo) {
-    //             restaurant_card_body.append(`
-    //             <div class="card mb-3" style="width: 100%;">
-    //                 <div class="row no-gutters">
-    //                     <div class="col-md-3">
-    //                         <img style="height:12rem;" src="{{MEDIA_URL}}` + iteminfo['image'] + `" class="card-img" alt="#">
-    //                     </div>
-    //                     <div class="col-md-9">
-    //                         <div class="card-body">
-    //                             <h5 class="card-title">`+ iteminfo['title'] + `</h5>
-    //                             <p class="card-text">This is a wider card with supporting text below as a natural lead-in to
-    //                                 additional
-    //                                 content. This content is a little bit longer.</p>
-    //                                 <div class="row">
-    //                                     <div class="col">
-    //                                         <label>Quantity: &nbsp</label>
-    //                                         <select class="custom-select custom-select-sm" style="width:auto;">
-    //                                             <option value="1">1</option>
-    //                                             <option value="2">2</option>
-    //                                             <option value="3">3</option>
-    //                                             <option value="multiple">4+</option>
-    //                                         </select>
-    //                                     </div>
-    //                                     <div class="col text-right">
-    //                                         <label>Unit Price: &nbsp</label><b class="item-price">$` + iteminfo['price'] + `</b>
-    //                                     </div>
-    //                                 </div>
-    //                         </div>
-    //                     </div>
-    //                 </div>
-    //             </div>`
-    //             );
-    //         });
-    //         // current no use but plan to use it in the future
-    //         item_card_body_list = restaurant_card_body.find('card-body');
 
-    //         card.append('<div class="card-footer text-right"><button type="button" class="btn btn-primary">Place Order</button></div>')
-    //         my_cart_div.append('<br/>')
-    //         // console.log(restaurant_cart_info['iteminfo_list']);
-    //         // console.log(card_body);
-    //     });
-    // }
 </script>
 {% endblock %}

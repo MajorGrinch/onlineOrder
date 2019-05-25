@@ -17,7 +17,6 @@ class MyLoginView(LoginView):
         if user is not None:
             login(request, user)
             user.last_login = timezone.now()
-            # messages.success(request, ('You have been logged in!'))
             return redirect('mainpage:home')
         else:
             messages.success(request, 'Error logging in, please try again!')
@@ -48,7 +47,7 @@ def edit_user_profile(request):
         if form.is_valid():
             form.save()
             messages.success(request, ('Update successfully!'))
-            return redirect('mainpage:home')
+            return redirect('authenticate:edit_user_profile')
     else:
         form = EditProfileForm(instance=request.user)
 

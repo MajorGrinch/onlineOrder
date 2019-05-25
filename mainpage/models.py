@@ -90,4 +90,4 @@ class OrderItem(models.Model):
         db_table = 'orderitem'
 
     def __str__(self):
-        return str(self.order) + '-' + str(self.menuitem) + '-' + str(self.quantity)
+        return str(self.order) + ' | ' + str(self.menuitem) + ' | ' + str(self.quantity)

@@ -49,9 +49,10 @@ Vue.component('restaurant-card', {
                         <div class="col text-left">
                             <span class="subtotal_span">Subtotal:</span>
                             <b class="subtotal_price" value="10">\${{subtotal(restaurant)}}</b>
+                            <span>(\${{getDeliverFee(restaurant)}} deliver fee)</span>
                         </div>
                         <div class="col text-right">
-                            <button type="button" class="btn btn-primary">
+                            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#choose_address_modal" id="toggle_choose_address_modal_btn" @click="getAddressList">
                                 Place Order
                             </button>
                         </div>
@@ -60,11 +61,40 @@ Vue.component('restaurant-card', {
             </div>
             </br>
         </div>
+        <div class="modal fade" id="choose_address_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
+            aria-hidden="true">
+            <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalCenterTitle">Modal title</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        Place address at here
+                        <div v-for="(address,index) in address_list" class="custom-control custom-radio">
+                            <input type="radio" :id="'customRadio'+index" name="customRadio" class="custom-control-input">
+                            <label class="custom-control-label" :for="'customRadio'+index" @click="useAddress(address)">
+                                <span v-for="field in address.fields">
+                                    {{field}}
+                                </span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary">Place Order</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>`,
     data(){
         return {
             MEDIA_URL: 'http://127.0.0.1:8000/media/',
-            root_url: 'http://127.0.0.1:8000/'
+            root_url: 'http://127.0.0.1:8000/',
+            address_list:[]
         }
     },
     computed:{
@@ -77,7 +107,7 @@ Vue.component('restaurant-card', {
             return this.MEDIA_URL + image_path;
         },
         subtotal(restaurant){
-            var subtotal = 0;
+            var subtotal = restaurant.delivering_fee;
             var iteminfo_list = restaurant.iteminfo_list;
             // console.log(iteminfo_list);
             for (var key in iteminfo_list) {
@@ -85,7 +115,8 @@ Vue.component('restaurant-card', {
                 iteminfo = iteminfo_list[key];
                 subtotal += iteminfo['price'] * iteminfo['quantity'];
             }
-            this.$emit('update-cart');
+            // this.$emit('update-cart');
+            restaurant['subtotal'] = subtotal;
             this.saveCart2Cookie();
             return subtotal;
         },
@@ -94,7 +125,41 @@ Vue.component('restaurant-card', {
         },
         saveCart2Cookie(){
             // console.log(this.cart);
-            Cookies.set('cart', this.cart);
+            var username = Cookies.get('current_user');
+            Cookies.set(username+'-cart', this.cart);
+        },
+        getDeliverFee(restaurant){
+            // console.log(restaurant.delivering_fee);
+            return restaurant.delivering_fee;
+        },
+        placeOrder(restaurant){
+            // console.log(restaurant);
+            this.$http.post(this.root_url + 'place_order/', {restaurant_cart: restaurant},
+            {
+                headers: {'X-CSRFToken': Cookies.get('csrftoken')}
+            }).then(response => {
+                var restaurant_id = response.bodyText;
+                console.log('delete ' + restaurant_id);
+                Vue.delete(this.cart, restaurant_id);
+                this.saveCart2Cookie();
+            }, response => {
+                console.log(response);
+            })
+        },
+        getAddressList(){
+            this.$http.post(this.root_url + 'cart_detail/', {}, {
+                headers: {'X-CSRFToken': Cookies.get('csrftoken')}
+            }).then(response => {
+                console.log(response.body);
+                var data = response.body;
+                this.address_list = []
+                for(index in data){
+                    this.address_list.push(data[index])
+                }
+            })
+        },
+        useAddress(address){
+            console.log(address);
         }
     }
 })

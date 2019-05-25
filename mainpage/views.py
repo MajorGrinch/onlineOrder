@@ -4,8 +4,10 @@ from django.utils import timezone
 from .models import Restaurant, MenuItem, Order, OrderItem, Address
 from django.http import HttpResponse
 import json
+from django.contrib import messages
 from django.db import transaction
 from .forms import AddressCreationForm, AddressChangeForm
+from django.core.serializers import serialize
 
 # Create your views here.
 
@@ -40,6 +42,13 @@ class MenuView(ListView):
         # print(context)
         return context
 
+
+def get_restaurant_info(request, restaurant_id):
+    if request.method == 'GET':
+        restaurant = Restaurant.objects.get(pk=restaurant_id)
+        context = {'name': restaurant.name, 'delivering_fee': restaurant.delivering_fee}
+        return HttpResponse(json.dumps(context))
+
 def addToCart(request):
     if request.method == 'POST':
         try:
@@ -66,6 +75,9 @@ def flushCart(request):
 def cart_detail(request):
     if request.method == 'GET':
         return render(request, 'mainpage/cart_detail.html', {})
+    if request.method == 'POST':
+        address_list = Address.objects.filter(user=request.user)
+        return HttpResponse(serialize('json', address_list))
 
 
 def place_order(request):
@@ -107,6 +119,7 @@ def set_default_address(request):
         old_default_address.save()
         new_default_address.is_default = True
         new_default_address.save()
+        messages.success(request, 'Set successfully')
         return HttpResponse(1)
 
 
@@ -159,3 +172,25 @@ def edit_address(request, address_id):
         address = Address.objects.get(pk=address_id)
         form = AddressChangeForm(instance=address)
         return render(request, 'mainpage/address_change_page.html', {'form': form})
+
+@transaction.atomic
+def place_order(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)['restaurant_cart']
+        restaurant_id = int(data['id'][11:])
+        user_id = request.user.id
+        # print(data)
+        address = Address.objects.get(user_id=user_id, is_default=True)
+        order = Order(order_num='{:%Y%m%d%H%M%S}-{:d}'.format(timezone.now(), user_id),
+                subtotal=data['subtotal'], user_id=user_id, restaurant_id=restaurant_id,
+                address=address)
+        order.save()
+        iteminfo_list = data['iteminfo_list']
+        print(iteminfo_list)
+        for menuitem in iteminfo_list:
+            menuitem_id = int(menuitem[5:])
+            iteminfo = iteminfo_list[menuitem]
+            orderitem = OrderItem(quantity=iteminfo['quantity'], unit_price=iteminfo['price'],
+                    menuitem_id=menuitem_id, order=order)
+            orderitem.save()
+        return HttpResponse(data['id'])
