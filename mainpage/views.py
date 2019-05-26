@@ -183,6 +183,8 @@ def place_order(request):
     if request.method == 'POST':
         data = json.loads(request.body)
         address_id = data['address_id']
+        if address_id == None:
+            address_id = Address.objects.get(user=request.user, is_default=True).id
         restaurant_cart = data['restaurant_cart']
         restaurant_id = int(restaurant_cart['id'][11:])
         user_id = request.user.id
