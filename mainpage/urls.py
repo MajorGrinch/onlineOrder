@@ -15,4 +15,6 @@ urlpatterns = [
     path('edit_address/<int:address_id>/', views.edit_address, name="editAddress"),
     path('get_restaurant_info/<int:restaurant_id>/',views.get_restaurant_info, name="getRestaurantInfo"),
     path('place_order/', views.place_order, name="placeOrder"),
+    path('order_management/', views.OrderListView.as_view(), name="manageOrder"),
+    path('get_order_detail/<int:order_id>/', views.get_order_detail, name="getOrderDetail"),
 ]

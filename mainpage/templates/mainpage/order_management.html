@@ -1,0 +1,68 @@
+{% extends 'mainpage/base.html' %}
+{% load static %}
+
+{% block css_content %}
+{% endblock %}
+
+{% block content %}
+
+<br />
+
+<div id="orderlist_app_div">
+    {% for order in order_list %}
+    <div class="card">
+        <div class="card-header">
+            <div class="row">
+                <div class="col text-left">
+                    <!-- <b><a href="{% url 'mainpage:menu' order.restaurant_id %}">{{order.restaurant}}</a></b> -->
+                    {% if order.status is 0 %}
+                        <b>Placed</b>
+                    {% elif order.status is 1 %}
+                        <b>Confirmed</b>
+                    {% endif %}
+                </div>
+                <div class="col text-right">
+                    <span class="text-right">Order# {{order.order_num}}</span>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <restaurant-order :order_id="{{order.id}}"></restaurant-order>
+        </div>
+        <div class="card-footer">
+            <div class="row">
+                <div class="col text-left">
+                    <span class="subtotal_span">Subtotal: {{order.subtotal}}</span>
+                </div>
+                <div class="col text-right">
+                    <span>Button</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    </br>
+    {% endfor %}
+
+
+    <nav aria-label="Page navigation example">
+        <ul class="pagination justify-content-center">
+            <li class="page-item"><a class="page-link" href="#">Previous</a></li>
+            <li class="page-item"><a class="page-link" href="#">1</a></li>
+            <li class="page-item"><a class="page-link" href="#">2</a></li>
+            <li class="page-item"><a class="page-link" href="#">3</a></li>
+            <li class="page-item"><a class="page-link" href="#">Next</a></li>
+        </ul>
+    </nav>
+</div>
+
+
+
+{% endblock %}
+
+
+{% block js_content %}
+<script src="{% static 'mainpage/js/vue.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue-resource@1.5.1"></script>
+<script src="{% static 'mainpage/js/orderMgrUtil.js' %}"></script>
+
+{% endblock %}

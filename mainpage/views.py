@@ -1,4 +1,4 @@
-from django.shortcuts import render, get_object_or_404, redirect
+from django.shortcuts import render, get_object_or_404, redirect, get_list_or_404
 from django.views.generic import ListView
 from django.utils import timezone
 from .models import Restaurant, MenuItem, Order, OrderItem, Address
@@ -8,6 +8,7 @@ from django.contrib import messages
 from django.db import transaction
 from .forms import AddressCreationForm, AddressChangeForm
 from django.core.serializers import serialize
+from django.contrib.auth.decorators import login_required
 
 # Create your views here.
 
@@ -73,6 +74,10 @@ def flushCart(request):
         return HttpResponse(1)
 
 def cart_detail(request):
+    """get will redirect to cart detail page
+       in that page, post is used to get address list
+       when use click the address button
+    """
     if request.method == 'GET':
         return render(request, 'mainpage/cart_detail.html', {})
     if request.method == 'POST':
@@ -195,3 +200,27 @@ def place_order(request):
                     menuitem_id=menuitem_id, order=order)
             orderitem.save()
         return HttpResponse(restaurant_cart['id'])
+
+# def manage_order(request):
+#     if request.method == 'GET':
+
+
+class OrderListView(ListView):
+    model = Order
+    template_name = 'mainpage/order_management.html'
+    context_object_name = 'order_list'
+
+    def get_queryset(self):
+        return Order.objects.filter(user=self.request.user).order_by('-order_time')
+        # return get_list_or_404(Order, user=self.request.user)
+
+@login_required
+def get_order_detail(request, order_id):
+    orderitems = OrderItem.objects.filter(order_id=order_id)
+    orderitem_list = []
+    for orderitem in orderitems:
+        menuitem = orderitem.menuitem
+        orderitem_list.append({'image': menuitem.image.name, 'title': menuitem.title,
+                                'unit_price': orderitem.unit_price,
+                                'quantity': orderitem.quantity, 'restaurant_id': menuitem.restaurant.id} )
+    return HttpResponse(json.dumps(orderitem_list))

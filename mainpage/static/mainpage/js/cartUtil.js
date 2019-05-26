@@ -74,7 +74,8 @@ Vue.component('restaurant-card', {
                     <div class="modal-body">
                         Place address at here
                         <div v-for="(address,index) in address_list" class="custom-control custom-radio">
-                            <input type="radio" :id="'customRadio'+index" name="customRadio" class="custom-control-input">
+                            <input v-if="address.fields.is_default" type="radio" :id="'customRadio'+index" name="customRadio" class="custom-control-input" checked>
+                            <input v-else type="radio" :id="'customRadio'+index" name="customRadio" class="custom-control-input">
                             <label class="custom-control-label" :for="'customRadio'+index" @click="useAddress(address)">
                                 <span v-for="field in address.fields">
                                     {{field}}
