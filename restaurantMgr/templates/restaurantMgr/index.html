@@ -1,0 +1,172 @@
+{% extends 'restaurantMgr/base.html' %}
+{% load static %}
+
+{% block html_content %}
+<div class="row">
+    <div class="col-lg-12">
+        <h1>Dashboard <small>Statistics Overview</small></h1>
+        {{restaurant}}
+    </div>
+</div>
+<!-- /.row -->
+<div class="row">
+    <div class="col-lg-3">
+        <div class="panel panel-info">
+            <div class="panel-heading">
+                <div class="row">
+                    <div class="col-xs-6">
+                        <i class="fa fa-comments fa-5x"></i>
+                    </div>
+                    <div class="col-xs-6 text-right">
+                        <p class="announcement-heading">{{orders_pending|length}}</p>
+                        <p class="announcement-text">Pending</p>
+                    </div>
+                </div>
+            </div>
+            <a href="#" onclick="show_incoming_orders()">
+                <div class="panel-footer announcement-bottom">
+                    <div class="row">
+                        <div class="col-xs-6">
+                            Check
+                        </div>
+                        <div class="col-xs-6 text-right">
+                            <i class="fa fa-arrow-circle-right"></i>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+    <div class="col-lg-3">
+        <div class="panel panel-warning">
+            <div class="panel-heading">
+                <div class="row">
+                    <div class="col-xs-6">
+                        <i class="fa fa-check fa-5x"></i>
+                    </div>
+                    <div class="col-xs-6 text-right">
+                        <p class="announcement-heading">{{orders_delivered|length}}</p>
+                        <p class="announcement-text">Delivered</p>
+                    </div>
+                </div>
+            </div>
+            <a href="#" onclick="show_completed_orders()">
+                <div class="panel-footer announcement-bottom">
+                    <div class="row">
+                        <div class="col-xs-6">
+                            Check
+                        </div>
+                        <div class="col-xs-6 text-right">
+                            <i class="fa fa-arrow-circle-right"></i>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+    <div class="col-lg-3">
+        <div class="panel panel-danger">
+            <div class="panel-heading">
+                <div class="row">
+                    <div class="col-xs-6">
+                        <i class="fa fa-tasks fa-5x"></i>
+                    </div>
+                    <div class="col-xs-6 text-right">
+                        <p class="announcement-heading">{{orders_confirmed|length}}</p>
+                        <p class="announcement-text">Confirmed</p>
+                    </div>
+                </div>
+            </div>
+            <a href="#">
+                <div class="panel-footer announcement-bottom">
+                    <div class="row">
+                        <div class="col-xs-6">
+                            Check
+                        </div>
+                        <div class="col-xs-6 text-right">
+                            <i class="fa fa-arrow-circle-right"></i>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+    <div class="col-lg-3">
+        <div class="panel panel-success">
+            <div class="panel-heading">
+                <div class="row">
+                    <div class="col-xs-6">
+                        <i class="fa fa-comments fa-5x"></i>
+                    </div>
+                    <div class="col-xs-6 text-right">
+                        <p class="announcement-heading">56</p>
+                        <p class="announcement-text">新的留言</p>
+                    </div>
+                </div>
+            </div>
+            <a href="#">
+                <div class="panel-footer announcement-bottom">
+                    <div class="row">
+                        <div class="col-xs-6">
+                            用户留言
+                        </div>
+                        <div class="col-xs-6 text-right">
+                            <i class="fa fa-arrow-circle-right"></i>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+</div>
+<!-- /.row -->
+<div class="row">
+    <div class="col-lg-12">
+        <div class="panel panel-primary">
+            <div class="panel-heading" id="table_title">
+                <h3 class="panel-title"><i class="fa fa-money"></i> Current Orders</h3>
+            </div>
+            <div class="panel-body">
+                <div class="table-responsive" id="pending_orders_div">
+                    <table class="table table-bordered table-hover table-striped tablesorter" id="order_tb">
+                        <thead>
+                            <tr>
+                                <th>Order Num <i class="fa fa-sort"></i></th>
+                                <th>Time <i class="fa fa-sort"></i></th>
+                                <th>Address <i class="fa fa-sort"></i></th>
+                                <th>Price <i class="fa fa-sort"></i></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for order in orders_pending %}
+                            <tr>
+                                <td>{{order.order_num}}</td>
+                                <td>{{order.order_time}}</td>
+                                <td>{{order.address}}</td>
+                                <td>{{order.subtotal}}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="text-right">
+                    <a href="#">View All Transactions <i class="fa fa-arrow-circle-right"></i></a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /.row -->
+{% endblock %}
+
+{% block js_content %}
+<script src="{% static 'restaurantMgr/js/raphael-min.js' %}"></script>
+<script src="{% static 'restaurantMgr/js/morris-0.4.3.min.js' %}"></script>
+<script src="{% static 'restaurantMgr/js/morris/chart-data-morris.js' %}"></script>
+<script src="{% static 'restaurantMgr/js/tablesorter/jquery.tablesorter.js' %}"></script>
+<script src="{% static 'restaurantMgr/js/tablesorter/tables.js' %}"></script>
+<script>
+    function show_incoming_orders() {
+    }
+</script>
+{% endblock %}

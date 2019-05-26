@@ -60,7 +60,7 @@
 
                 {% if user.is_restaurant %}
                 <li class="nav-item">
-                    <a class="nav-link" href="#">My Restaurant</a>
+                    <a class="nav-link" href="{% url 'restaurantMgr:index' %}">My Restaurant</a>
                 </li>
                 {% endif %}
 
