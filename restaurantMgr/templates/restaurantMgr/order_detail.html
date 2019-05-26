@@ -1,0 +1,69 @@
+{% extends 'restaurantMgr/base.html' %}
+{% load static %}
+
+{% block html_content %}
+<!-- Basic Card Example -->
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Address</h6>
+    </div>
+    <div class="card-body">
+        {{order.address.full_name}},
+        {{order.address.street_address1}},
+        {{order.address.street_address2}},
+        {{order.address.city}},
+        {{order.address.state}},
+        {{order.address.phone_number}},
+    </div>
+</div>
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Order Content {{order.id}}</h6>
+    </div>
+    <div class="card-body">
+        <ul>
+            {% for orderitem in orderitem_list %}
+            <li>
+                {{orderitem.menuitem.title}} &times; {{orderitem.quantity}}
+            </li>
+            {% endfor %}
+        </ul>
+        <b>Subtotal: ${{order.subtotal}}</b>
+    </div>
+</div>
+
+{% if order.status is 0 %}
+<div>
+    <button class="btn btn-primary" id="confirm_order_btn">Confirm</button>
+    &nbsp;
+    <button class="btn btn-danger" id="decline_order_btn">Decline</button>
+</div>
+{% endif %}
+
+{% endblock %}
+
+{% block js_content %}
+<script src="{% static 'mainpage/js/js.cookie.js' %}"></script>
+<script>
+    $('#confirm_order_btn').click(function(){
+        console.log('you click confirm');
+        $.post("{% url 'restaurantMgr:orderDetail' order.id %}", {
+            csrfmiddlewaretoken: Cookies.get('csrftoken'),
+            action: "confirm"
+        }).done(function(data){
+            alert(data);
+            location.href = "{% url 'restaurantMgr:index' %}";
+        })
+    })
+    $('#decline_order_btn').click(function(){
+        console.log('you click decline');
+        $.post("{% url 'restaurantMgr:orderDetail' order.id %}", {
+            csrfmiddlewaretoken: Cookies.get('csrftoken'),
+            action: "decline"
+        }).done(function(data){
+            alert(data);
+            location.href = "{% url 'restaurantMgr:index' %}";
+        })
+    })
+</script>
+{% endblock %}
