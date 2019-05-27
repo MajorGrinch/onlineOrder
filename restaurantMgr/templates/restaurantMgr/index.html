@@ -5,7 +5,7 @@
 {% block css_content %}
 <link href="{% static 'restaurantMgr/vendor/datatables/dataTables.bootstrap4.min.css' %}" rel="stylesheet">
 <style>
-    .order_filter{
+    .order_filter {
         cursor: pointer;
     }
 </style>
@@ -99,7 +99,7 @@
     <!-- pending orders table -->
     <div id="pending_orders_table" class="card shadow mb-4 order_table" style="display: none;">
         <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">DataTables Example</h6>
+            <h6 class="m-0 font-weight-bold text-primary">Pending Orders</h6>
         </div>
         <div class="card-body">
             <div class="table-responsive">
@@ -143,7 +143,7 @@
     <!-- confimred oredrs table -->
     <div id="confirmed_orders_table" class="card shadow mb-4 order_table" style="display: none;">
         <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">DataTables Example</h6>
+            <h6 class="m-0 font-weight-bold text-primary">Confimred Orders</h6>
         </div>
         <div class="card-body">
             <div class="table-responsive">
@@ -189,7 +189,7 @@
     <!-- delivered oredrs table -->
     <div id="delivered_orders_table" class="card shadow mb-4 order_table" style="display: none;">
         <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">DataTables Example</h6>
+            <h6 class="m-0 font-weight-bold text-primary">Delivered Orders</h6>
         </div>
         <div class="card-body">
             <div class="table-responsive">
@@ -217,7 +217,6 @@
                             <td>{{order.order_time}}</td>
                             <td>{{order.subtotal}}</td>
                             <td>{{order.address.street_address1}}, {{order.address.street_address2}}</td>
-                            
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -235,35 +234,37 @@
 <script src="{% static 'restaurantMgr/vendor/datatables/dataTables.bootstrap4.min.js' %}"></script>
 <!-- <script src="{% static 'restaurantMgr/js/demo/datatables-demo.js' %}"></script> -->
 <script>
-$('#choose_pending_orders_btn').click(function(){
-    // console.log(this);
-    $('.order_table').hide();
-    $('#pending_orders_table').show();
-});
+    $('#choose_pending_orders_btn').click(function () {
+        // console.log(this);
+        $('.order_table').hide();
+        $('#pending_orders_table').show();
+    });
 
-$('#choose_confirmed_orders_btn').click(function(){
-    // console.log(this);
-    $('.order_table').hide();
-    $('#confirmed_orders_table').show();
-});
+    $('#choose_confirmed_orders_btn').click(function () {
+        // console.log(this);
+        $('.order_table').hide();
+        $('#confirmed_orders_table').show();
+    });
 
-$('#choose_delivered_orders_btn').click(function(){
-    // console.log(this);
-    $('.order_table').hide();
-    $('#delivered_orders_table').show();
-});
+    $('#choose_delivered_orders_btn').click(function () {
+        // console.log(this);
+        $('.order_table').hide();
+        $('#delivered_orders_table').show();
+    });
 
-$('#test_btn').click(function(){
-    console.log(this);
-    $('.order_table').hide();
-    // $('#delivered_orders_table').show();
-});
+    $('#test_btn').click(function () {
+        console.log(this);
+        $('.order_table').hide();
+        // $('#delivered_orders_table').show();
+    });
 
-$(document).ready(function() {
-  $('#pending_dataTable').DataTable();
-  $('#confirmed_dataTable').DataTable();
-  $('#delivered_dataTable').DataTable();
-});
+    $(document).ready(function () {
+        $('#pending_dataTable').DataTable();
+        $('#confirmed_dataTable').DataTable();
+        $('#delivered_dataTable').DataTable();
+        $('#pending_orders_table').show();
+    });
+    $('#dashboard_tab').addClass('active');
 
 </script>
 {% endblock %}

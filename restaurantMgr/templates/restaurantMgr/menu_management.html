@@ -1,0 +1,79 @@
+{% extends 'restaurantMgr/base.html' %}
+{% load static %}
+
+
+{% block css_content %}
+<link href="{% static 'restaurantMgr/vendor/datatables/dataTables.bootstrap4.min.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block html_content %}
+<div class="container-fluid">
+
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">My Restaurant Menu</h1>
+        <a href="{% url 'restaurantMgr:addMenuItem' %}" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">
+            <i class="fas"></i>Add item</a>
+    </div>
+
+    <!-- my restaurant menu table -->
+    <div id="restaurant_menu_table" class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Menu List</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="menu_dataTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Price</th>
+                            <th>Image</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tfoot>
+                        <tr>
+                            <th>Title</th>
+                            <th>Price</th>
+                            <th>Image</th>
+                            <th>Action</th>
+                        </tr>
+                    </tfoot>
+                    <tbody>
+                        {% for menuitem in menuitem_list %}
+                        <tr>
+                            <td>{{menuitem.title}}</td>
+                            <td>{{menuitem.price}}</td>
+                            <td class="text-center">
+                                <!-- <img src="{{MEDIA_URL}}{{menuitem.image}}" alt="..." style="height: 5rem; width: 5rem;"> -->
+                                <a href="{{MEDIA_URL}}{{menuitem.image}}">{{menuitem.image}}</a>
+                            </td>
+                            <td class="text-center">
+                                <a href="#">Edit</a>
+                                <span> &nbsp; | &nbsp; </span>
+                                <a href="#">Delete</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <!-- end of restaurant menu table -->
+
+</div>
+
+{% endblock %}
+
+{% block js_content %}
+<script src="{% static 'restaurantMgr/vendor/datatables/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'restaurantMgr/vendor/datatables/dataTables.bootstrap4.min.js' %}"></script>
+<script>
+    $(document).ready(function () {
+        $('#menu_dataTable').DataTable();
+    });
+    $('#menu_tab').addClass('active');
+</script>
+{% endblock %}

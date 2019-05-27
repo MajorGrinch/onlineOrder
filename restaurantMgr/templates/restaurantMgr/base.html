@@ -45,7 +45,7 @@
             <hr class="sidebar-divider my-0">
 
             <!-- Nav Item - Dashboard -->
-            <li class="nav-item active">
+            <li class="nav-item" id="dashboard_tab">
                 <a class="nav-link" href="{% url 'restaurantMgr:index' %}">
                     <i class="fas fa-fw fa-tachometer-alt"></i>
                     <span>Dashboard</span></a>
@@ -55,20 +55,20 @@
             <hr class="sidebar-divider">
 
             <!-- Heading -->
-            <div class="sidebar-heading">
+            <!-- <div class="sidebar-heading">
                 Management
-            </div>
+            </div> -->
 
             <!-- Nav Item - Charts -->
-            <li class="nav-item">
-                <a class="nav-link" href="charts.html">
+            <li class="nav-item" id="menu_tab">
+                <a class="nav-link" href="{% url 'restaurantMgr:manageMenu' restaurant.id %}">
                     <i class="fas fa-fw fa-table"></i>
                     <span>Menu</span></a>
             </li>
 
             <!-- Nav Item - Tables -->
-            <li class="nav-item">
-                <a class="nav-link" href="tables.html">
+            <li class="nav-item" id="restaurant_info_tab">
+                <a class="nav-link" href="#">
                     <i class="fas fa-fw fa-table"></i>
                     <span>Tables</span></a>
             </li>
@@ -356,6 +356,7 @@
     <script src="{% static 'restaurantMgr/js/sb-admin-2.min.js' %}"></script>
 
     <!-- Page level plugins -->
+
 
     {% block js_content %}
     {% endblock %}

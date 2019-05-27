@@ -55,7 +55,7 @@ class MenuItem(models.Model):
     price = models.IntegerField(default=0)
     description = models.CharField(max_length=100)
     restaurant = models.ForeignKey(Restaurant, on_delete=models.CASCADE)
-    image = models.ImageField(upload_to='menu_item/', blank=True)
+    image = models.ImageField(upload_to='menu_item/')
 
     class Meta:
         db_table = 'menuitem'
