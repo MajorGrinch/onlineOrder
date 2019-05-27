@@ -205,18 +205,29 @@ def place_order(request):
             orderitem.save()
         return HttpResponse(restaurant_cart['id'])
 
-# def manage_order(request):
-#     if request.method == 'GET':
 
-
-class OrderListView(ListView):
+class OrderPageView(ListView):
     model = Order
     template_name = 'mainpage/order_management.html'
     context_object_name = 'order_list'
 
     def get_queryset(self):
-        return Order.objects.filter(user=self.request.user).order_by('-order_time')
+        page_id = self.kwargs['page_id']
+        offset = (page_id-1) * 5
+        limit = offset + 5
+        print(offset, limit)
+        return Order.objects.filter(user=self.request.user).order_by('-order_time')[offset:limit]
         # return get_list_or_404(Order, user=self.request.user)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        order_length = Order.objects.filter(user=self.request.user).count()
+        page_id_list = [int(i/5)+1 for i in range(order_length) if i%5==0]
+        context['page_id_list'] = page_id_list
+        context['order_length'] = order_length
+        return context
+
+
 
 @login_required
 def get_order_detail(request, order_id):

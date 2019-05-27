@@ -7,7 +7,8 @@
 {% block content %}
 
 <br />
-
+<!-- the orders are sorted accroding to last update time -->
+<h1>You have {{order_length}} orders in total</h1>
 <div id="orderlist_app_div">
     {% for order in order_list %}
     <div class="card">
@@ -49,13 +50,12 @@
     </br>
     {% endfor %}
 
-
     <nav aria-label="Page navigation example">
-        <ul class="pagination justify-content-center">
+        <ul class="pagination justify-content-center" id="pagination_ul">
             <li class="page-item"><a class="page-link" href="#">Previous</a></li>
-            <li class="page-item"><a class="page-link" href="#">1</a></li>
-            <li class="page-item"><a class="page-link" href="#">2</a></li>
-            <li class="page-item"><a class="page-link" href="#">3</a></li>
+            {% for page_id in page_id_list %}
+            <li class="page-item"><a class="page-link" href="{% url 'mainpage:manageOrder' page_id %}">{{page_id}}</a></li>
+            {% endfor %}
             <li class="page-item"><a class="page-link" href="#">Next</a></li>
         </ul>
     </nav>
@@ -80,7 +80,6 @@ function confim_delivery_order(order_id){
         console.log(data);
         location.reload();
     });
-    // console.log(typeof(order_id))
 }
 </script>
 
