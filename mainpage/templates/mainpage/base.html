@@ -55,7 +55,7 @@
                 </li>
 
                 <li class="nav-item">
-                    <a class="nav-link" href="{% url 'authenticate:logout' %}">Logout</a>
+                    <a class="nav-link" href="{% url 'authenticate:logout' %}" id="logout_btn">Logout</a>
                 </li>
 
                 {% if user.is_restaurant %}
@@ -144,6 +144,13 @@
                 }
             })
         });
+
+        function clearCookies(){
+            Cookies.remove('current_user');
+            Cookies.remove('csrftoken');
+        }
+
+        $('#logout_btn').click(clearCookies);
 
     </script>
     {% block js_content %}
