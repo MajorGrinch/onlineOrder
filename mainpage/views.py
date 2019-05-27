@@ -228,3 +228,15 @@ def get_order_detail(request, order_id):
                                 'unit_price': orderitem.unit_price,
                                 'quantity': orderitem.quantity, 'restaurant_id': menuitem.restaurant.id} )
     return HttpResponse(json.dumps(orderitem_list))
+
+@login_required
+def confirm_delivery(request):
+    if request.method == 'POST':
+        try:
+            order_id = request.POST['order_id']
+            order = Order.objects.get(pk=order_id)
+            order.status = 2
+            order.save()
+            return HttpResponse(1)
+        except:
+            return HttpResponse(0)

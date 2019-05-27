@@ -37,10 +37,10 @@ Vue.component('restaurant-order', {
     mounted: function() {
         this.$http.get(this.base_url + 'get_order_detail/' + this.order_id)
         .then(response=>{
-            console.log(response);
+            // console.log(response);
             this.order_item_list = response.body;
         }, response =>{
-            console.log(response)
+            // console.log(response)
         })
     }
 })

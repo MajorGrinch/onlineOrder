@@ -18,7 +18,11 @@
                     {% if order.status is 0 %}
                         <b>Placed</b>
                     {% elif order.status is 1 %}
-                        <b>Confirmed</b>
+                        <b>On the way</b>
+                    {% elif order.status is 2%}
+                        <b>Delivered</b>
+                    {% elif order.status is 3%}
+                        <b>Declined by the restaurant</b>
                     {% endif %}
                 </div>
                 <div class="col text-right">
@@ -34,9 +38,11 @@
                 <div class="col text-left">
                     <span class="subtotal_span">Subtotal: {{order.subtotal}}</span>
                 </div>
+                {% if order.status is 1 %}
                 <div class="col text-right">
-                    <span>Button</span>
+                    <button class="btn btn-success confirm_delivery_order_btn" onclick="confim_delivery_order({{order.id}})">Confirm Delivered</span>
                 </div>
+                {% endif %}
             </div>
         </div>
     </div>
@@ -64,5 +70,18 @@
 <script src="{% static 'mainpage/js/vue.js' %}"></script>
 <script src="https://cdn.jsdelivr.net/npm/vue-resource@1.5.1"></script>
 <script src="{% static 'mainpage/js/orderMgrUtil.js' %}"></script>
+<script>
+
+function confim_delivery_order(order_id){
+    $.post("{% url 'mainpage:confirmDelivery' %}", {
+        csrfmiddlewaretoken: Cookies.get('csrftoken'),
+        order_id: order_id
+    }).then(function(data){
+        console.log(data);
+        location.reload();
+    });
+    // console.log(typeof(order_id))
+}
+</script>
 
 {% endblock %}
