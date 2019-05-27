@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.views.generic import DetailView, ListView
 from django.http import HttpResponse
-from .forms import MenuItemCreationForm, MenuItemChangeForm
+from .forms import MenuItemCreationForm, MenuItemChangeForm, RestaurantChangeForm
 # from django.core.files.uploadedfile import SimpleUploadedFile
 
 # Create your views here.
@@ -106,6 +106,7 @@ def edit_menuitem(request, menuitem_id):
             'form': form}
         return render(request, 'restaurantMgr/menuitem_change_page.html', context)
 
+@login_required
 def delete_menuitem(request, menuitem_id):
     if request.method == 'GET':
         menuitem = MenuItem.objects.get(pk=menuitem_id)
@@ -114,3 +115,23 @@ def delete_menuitem(request, menuitem_id):
         menuitem.is_active = False
         menuitem.save()
         return redirect('restaurantMgr:manageMenu', restaurant.id)
+
+@login_required
+def edit_restaurant(request, restaurant_id):
+    restaurant = Restaurant.objects.get(user=request.user)
+    if request.method == 'POST':
+        form = RestaurantChangeForm(request.POST, request.FILES, instance=restaurant)
+        if form.is_valid():
+            form.save()
+            return redirect('restaurantMgr:editRestaurant', restaurant.id)
+        else:
+            form = RestaurantChangeForm(instance=restaurant)
+            context = {'restaurant': restaurant,
+                    'form': form}
+            return render(request, 'restaurantMgr/restaurant_change_page.html', context)
+
+    else:
+        form = RestaurantChangeForm(instance=restaurant)
+        context = {'restaurant': restaurant,
+                'form': form}
+        return render(request, 'restaurantMgr/restaurant_change_page.html', context)
