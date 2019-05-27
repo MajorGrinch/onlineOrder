@@ -34,7 +34,7 @@ class MenuView(ListView):
 
     def get_queryset(self):
         # self.restaurant = get_object_or_404(Restaurant, id=self.kwargs['restaurant_id'])
-        return MenuItem.objects.filter(restaurant=self.kwargs['restaurant_id'])
+        return MenuItem.objects.filter(restaurant=self.kwargs['restaurant_id'], is_active=True)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -98,7 +98,7 @@ def place_order(request):
 
 def manage_address(request):
     if request.method == 'GET':
-        user_addresses = Address.objects.filter(user=request.user)
+        user_addresses = Address.objects.filter(user=request.user, is_active=True)
         context = {'addresses': user_addresses}
         return render(request, 'mainpage/address_management.html', context)
 
@@ -155,7 +155,9 @@ def delete_address(request):
             address = Address.objects.get(pk=address_id)
             if address.is_default:
                 raise ValueError('Default_Address')
-            address.delete()
+            # address.delete()
+            address.is_active = False
+            address.save()
             return HttpResponse(1)
         except ValueError as e:
             return HttpResponse(e)

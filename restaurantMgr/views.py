@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.views.generic import DetailView, ListView
 from django.http import HttpResponse
-from .forms import MenuItemCreationForm
+from .forms import MenuItemCreationForm, MenuItemChangeForm
 # from django.core.files.uploadedfile import SimpleUploadedFile
 
 # Create your views here.
@@ -68,7 +68,7 @@ class MenuItemView(ListView):
         context = super().get_context_data(**kwargs)
         context['restaurant'] = Restaurant.objects.get(pk=self.kwargs['restaurant_id'])
         return context
-
+@login_required
 def add_menuitem(request):
     restaurant = Restaurant.objects.get(user=request.user)
     if request.method == 'POST':
@@ -86,3 +86,31 @@ def add_menuitem(request):
         form = MenuItemCreationForm()
         context = {'form': form, 'restaurant': restaurant}
         return render(request, 'restaurantMgr/menuitem_creation_page.html', context)
+
+@login_required
+def edit_menuitem(request, menuitem_id):
+    restaurant = Restaurant.objects.get(user=request.user)
+    menuitem = MenuItem.objects.get(pk=menuitem_id)
+    if request.method == 'POST':
+        form = MenuItemChangeForm(request.POST, request.FILES, instance=menuitem)
+        if form.is_valid():
+            form.save()
+            return redirect('restaurantMgr:manageMenu', restaurant.id)
+        else:
+            context = {'form': form, 'restaurant': restaurant}
+            return render(request, 'restaurantMgr/menuitem_change_page.html', context)
+    else:
+        form = MenuItemChangeForm(instance=menuitem)
+        context = {
+            'restaurant': restaurant,
+            'form': form}
+        return render(request, 'restaurantMgr/menuitem_change_page.html', context)
+
+def delete_menuitem(request, menuitem_id):
+    if request.method == 'GET':
+        menuitem = MenuItem.objects.get(pk=menuitem_id)
+        restaurant = Restaurant.objects.get(user=request.user)
+        # menuitem.delete()
+        menuitem.is_active = False
+        menuitem.save()
+        return redirect('restaurantMgr:manageMenu', restaurant.id)

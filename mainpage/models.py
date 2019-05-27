@@ -11,6 +11,7 @@ class Address(models.Model):
     phone_number = models.CharField(max_length=30)
     is_default = models.BooleanField(default=False)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+    is_active = models.BooleanField(default=True)
 
     class Meta:
         db_table = 'address'
@@ -55,7 +56,8 @@ class MenuItem(models.Model):
     price = models.IntegerField(default=0)
     description = models.CharField(max_length=100)
     restaurant = models.ForeignKey(Restaurant, on_delete=models.CASCADE)
-    image = models.ImageField(upload_to='menu_item/')
+    image = models.ImageField(upload_to='menu_item/', blank=True)
+    is_active = models.BooleanField(default=True)
 
     class Meta:
         db_table = 'menuitem'
