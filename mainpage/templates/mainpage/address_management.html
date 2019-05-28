@@ -67,12 +67,12 @@
 new Vue({
     el: '#address_div',
     data:{
-        base_url: 'http://127.0.0.1:8000/'
+        base_url: window.location.origin
     },
     methods:{
         setDefaultAddress(address_id){
             console.log(address_id);
-            this.$http.post(this.base_url + 'set_default_address/', {address_id: address_id},
+            this.$http.post(this.base_url + '/set_default_address/', {address_id: address_id},
                 {
                     headers:{'X-CSRFToken': Cookies.get('csrftoken')}
                 })
@@ -89,7 +89,7 @@ new Vue({
         },
         deleteAddress(address_id){
             console.log(address_id)
-            this.$http.post(this.base_url + 'delete_address/', {address_id: address_id},
+            this.$http.post(this.base_url + '/delete_address/', {address_id: address_id},
             {
                 headers: {'X-CSRFToken': Cookies.get('csrftoken')}
             })

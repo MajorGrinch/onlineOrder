@@ -93,8 +93,8 @@ Vue.component('restaurant-card', {
     </div>`,
     data(){
         return {
-            MEDIA_URL: 'http://127.0.0.1:8000/media/',
-            root_url: 'http://127.0.0.1:8000/',
+            root_url: window.location.origin,
+            MEDIA_URL: window.location.origin + '/media/',
             address_list:[],
             selected_restaurant : null,
             selected_address : null,
@@ -104,7 +104,7 @@ Vue.component('restaurant-card', {
     },
     methods:{
         restaurant_url(restaurant_id){
-            return this.root_url + 'restaurant_menu/' + parseInt(restaurant_id.substring(11));
+            return this.root_url + '/restaurant_menu/' + parseInt(restaurant_id.substring(11));
         },
         getImgUrl(image_path){
             return this.MEDIA_URL + image_path;
@@ -137,7 +137,7 @@ Vue.component('restaurant-card', {
         },
         placeOrder(){
             // console.log(restaurant);
-            this.$http.post(this.root_url + 'place_order/',
+            this.$http.post(this.root_url + '/place_order/',
             {
                 restaurant_cart: this.cart[this.selected_restaurant],
                 address_id: this.selected_address
@@ -155,7 +155,7 @@ Vue.component('restaurant-card', {
             })
         },
         getAddressList(restaurant_id){
-            this.$http.post(this.root_url + 'cart_detail/', {}, {
+            this.$http.post(this.root_url + '/cart_detail/', {}, {
                 headers: {'X-CSRFToken': Cookies.get('csrftoken')}
             }).then(response => {
                 console.log(response.body);
@@ -178,7 +178,8 @@ Vue.component('restaurant-card', {
 var cart_app = new Vue({
     el: '#cart_app_div',
     data: {
-        cart: getCart()
+        cart: getCart(),
+        base_url : Cookies.get('base_url')
     },
     methods:{
         showCart(){

@@ -151,6 +151,10 @@
         }
 
         $('#logout_btn').click(clearCookies);
+        $(document).ready(function(){
+            var base_url = window.location.origin;
+            Cookies.set('base_url', base_url);
+        });
 
     </script>
     {% block js_content %}
