@@ -25,7 +25,7 @@ class Restaurant(models.Model):
     name = models.CharField(max_length=50)
     starting_price = models.IntegerField(default=0)
     delivering_fee = models.IntegerField(default=0)
-    rating = models.DecimalField(max_digits=2, decimal_places=1)
+    rating = models.DecimalField(max_digits=2, decimal_places=1, default=0.0)
     image = models.ImageField(upload_to='restaurant_images/', blank=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     accumulated_score = models.FloatField(default=0)

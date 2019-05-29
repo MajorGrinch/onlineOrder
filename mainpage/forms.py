@@ -5,7 +5,7 @@ from .models import Address
 class AddressCreationForm(ModelForm):
     class Meta:
         model = Address
-        exclude = ['user', 'is_default']
+        exclude = ['user', 'is_default', 'is_active']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -20,7 +20,7 @@ class AddressCreationForm(ModelForm):
 class AddressChangeForm(ModelForm):
     class Meta:
         model = Address
-        exclude = ['user', 'is_default']
+        exclude = ['user', 'is_default', 'is_active']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

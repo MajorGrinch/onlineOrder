@@ -1,0 +1,29 @@
+{% extends 'mainpage/base.html' %}
+{% load static %}
+
+{% block content %}
+
+<div class="col-md-6 offset-md-3">
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        {% if form %}
+        {{form.as_p}}
+        {% endif %}
+        <br/>
+        <div class="text-center">
+            <button type="submit" class="btn btn-primary">Submit</button>
+            <button type="button" class="btn btn-primary" id="esc_btn">Esc</button>
+        </div>
+    </form>
+    <br/>
+</div>
+
+{% endblock %}
+
+{% block js_content %}
+<script>
+    $('#esc_btn').click(function(){
+        location.href = "{% url 'mainpage:home' %}";
+    });
+</script>
+{% endblock %}

@@ -52,7 +52,11 @@
                             <td class="text-center">
                                 <a href="{% url 'restaurantMgr:editMenuItem' menuitem.id %}">Edit</a>
                                 <span> &nbsp; | &nbsp; </span>
+                                {% if menuitem.is_active %}
                                 <a href="{% url 'restaurantMgr:deleteMenuItem' menuitem.id %}">Delete</a>
+                                {% else %}
+                                <a href="{% url 'restaurantMgr:deleteMenuItem' menuitem.id %}">Restore</a>
+                                {% endif %}
                             </td>
                         </tr>
                         {% endfor %}

@@ -47,7 +47,11 @@
                         <a class="dropdown-item" href="{% url 'authenticate:edit_user_profile' %}">Edit profile</a>
                         <a class="dropdown-item" href="{% url 'mainpage:manageAddress' %}">Your Addresses</a>
                         <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="#" >Other</a>
+                        {% if user.is_restaurant %}
+                        <a class="dropdown-item" href="{% url 'restaurantMgr:index' %}" >My Restaurant</a>
+                        {% else %}
+                        <a class="dropdown-item" href="{% url 'restaurantMgr:createRestaurant' %}" >Open Restaurant</a>
+                        {% endif %}
                     </div>
                 </li>
                 <li class="nav-item">
@@ -57,12 +61,6 @@
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'authenticate:logout' %}" id="logout_btn">Logout</a>
                 </li>
-
-                {% if user.is_restaurant %}
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'restaurantMgr:index' %}">My Restaurant</a>
-                </li>
-                {% endif %}
 
                 {% else %}
                 <li class="nav-item">
