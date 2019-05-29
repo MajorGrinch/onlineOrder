@@ -118,6 +118,15 @@ def delete_menuitem(request, menuitem_id):
         return redirect('restaurantMgr:manageMenu', restaurant.id)
 
 @login_required
+def restore_menuitem(request, menuitem_id):
+    if request.method == 'GET':
+        menuitem = MenuItem.objects.get(pk=menuitem_id)
+        restaurant = Restaurant.objects.get(user=request.user)
+        menuitem.is_active = True
+        menuitem.save()
+        return redirect('restaurantMgr:manageMenu', restaurant.id)
+
+@login_required
 def edit_restaurant(request, restaurant_id):
     restaurant = Restaurant.objects.get(user=request.user)
     if request.method == 'POST':
@@ -157,3 +166,4 @@ def create_restaurant(request):
         form = RestaurantCreationForm()
         context = {'form': form}
         return render(request, 'restaurantMgr/restaurant_creation_page.html', context)
+

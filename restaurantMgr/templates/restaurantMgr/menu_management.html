@@ -55,7 +55,7 @@
                                 {% if menuitem.is_active %}
                                 <a href="{% url 'restaurantMgr:deleteMenuItem' menuitem.id %}">Delete</a>
                                 {% else %}
-                                <a href="{% url 'restaurantMgr:deleteMenuItem' menuitem.id %}">Restore</a>
+                                <a href="{% url 'restaurantMgr:restoreMenuItem' menuitem.id %}">Restore</a>
                                 {% endif %}
                             </td>
                         </tr>
