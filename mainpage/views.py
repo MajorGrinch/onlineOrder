@@ -9,6 +9,7 @@ from django.db import transaction
 from .forms import AddressCreationForm, AddressChangeForm
 from django.core.serializers import serialize
 from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
 
 # Create your views here.
 
@@ -206,26 +207,15 @@ def place_order(request):
         return HttpResponse(restaurant_cart['id'])
 
 
-class OrderPageView(ListView):
-    model = Order
-    template_name = 'mainpage/order_management.html'
-    context_object_name = 'order_list'
-
-    def get_queryset(self):
-        page_id = self.kwargs['page_id']
-        offset = (page_id-1) * 5
-        limit = offset + 5
-        print(offset, limit)
-        return Order.objects.filter(user=self.request.user).order_by('-order_time')[offset:limit]
-        # return get_list_or_404(Order, user=self.request.user)
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        order_length = Order.objects.filter(user=self.request.user).count()
-        page_id_list = [int(i/5)+1 for i in range(order_length) if i%5==0]
-        context['page_id_list'] = page_id_list
-        context['order_length'] = order_length
-        return context
+def order_list(request):
+    if request.method == 'GET':
+        all_orders = Order.objects.filter(user=request.user).order_by('-order_time')
+        order_length = all_orders.count()
+        all_orders_paged = Paginator(all_orders, 5)
+        page_id = int(request.GET['page'])
+        curr_order_list = all_orders_paged.get_page(page_id)
+        context = {'order_length': order_length, 'order_list': curr_order_list}
+        return render(request, 'mainpage/order_management.html', context)
 
 
 

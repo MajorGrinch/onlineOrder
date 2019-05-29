@@ -8,7 +8,6 @@
 
 <br />
 <!-- the orders are sorted accroding to last update time -->
-<h1>You have {{order_length}} orders in total</h1>
 <div id="orderlist_app_div">
     {% for order in order_list %}
     <div class="card">
@@ -52,11 +51,28 @@
 
     <nav aria-label="Page navigation example">
         <ul class="pagination justify-content-center" id="pagination_ul">
-            <li class="page-item"><a class="page-link" href="#">Previous</a></li>
-            {% for page_id in page_id_list %}
-            <li class="page-item"><a class="page-link" href="{% url 'mainpage:manageOrder' page_id %}">{{page_id}}</a></li>
+            {% if order_list.has_previous %}
+            <li class="page-item"><a class="page-link" href="?page={{order_list.previous_page_number}}">Previous</a></li>
+            {% endif %}
+            {% for page_id in order_list.paginator.page_range %}
+                {% if page_id is order_list.number %}
+                <li class="page-item active" aria-current="page">
+                    <span class="page-link">
+                        {{page_id}}
+                        <span class="sr-only">(current)</span>
+                    </span>
+                </li>
+                {% else %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{page_id}}">
+                        {{page_id}}
+                    </a>
+                </li>
+                {% endif %}
             {% endfor %}
-            <li class="page-item"><a class="page-link" href="#">Next</a></li>
+            {% if order_list.has_next %}
+            <li class="page-item"><a class="page-link" href="?page={{order_list.next_page_number}}">Next</a></li>
+            {% endif %}
         </ul>
     </nav>
 </div>
