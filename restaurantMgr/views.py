@@ -15,7 +15,8 @@ def index(request):
     orders_pending = orders_all.filter(status=0)
     orders_delivered = orders_all.filter(status=2)
     orders_confirmed = orders_all.filter(status=1)
-    context = {'restaurant': restaurant, 'orders_pending': orders_pending,
+    request.session['restaurant_id'] = restaurant.id
+    context = {'orders_pending': orders_pending,
                 'orders_delivered': orders_delivered, 'orders_confirmed': orders_confirmed}
     return render(request, 'restaurantMgr/index.html', context)
 
@@ -33,7 +34,6 @@ class OrderDetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['orderitem_list'] = OrderItem.objects.filter(order=self.kwargs['pk'])
-        context['restaurant'] = Restaurant.objects.get(user=self.request.user)
         return context
 
     def post(self, request, *args, **kwargs):
@@ -60,90 +60,77 @@ class MenuItemView(ListView):
         return super().dispatch(*args, **kwargs)
 
     def get_queryset(self):
-        # print('restaurant_id: ', self.kwargs['restaurant_id'])
-        return MenuItem.objects.filter(restaurant=self.kwargs['restaurant_id'])
+        restaurant_id = self.request.session['restaurant_id']
+        return MenuItem.objects.filter(restaurant=restaurant_id)
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['restaurant'] = Restaurant.objects.get(pk=self.kwargs['restaurant_id'])
-        return context
 
 
 @login_required
 def add_menuitem(request):
-    restaurant = Restaurant.objects.get(user=request.user)
     if request.method == 'POST':
         form = MenuItemCreationForm(request.POST, request.FILES)
         if form.is_valid():
             new_menuitem = form.save(commit=False)
-            new_menuitem.restaurant = restaurant
+            new_menuitem.restaurant = request.session['restaurant_id']
             new_menuitem.save()
-            return redirect('restaurantMgr:manageMenu', restaurant.id)
+            return redirect('restaurantMgr:manageMenu')
         else:
-            context = {'form': form, 'restaurant': restaurant}
+            context = {'form': form}
             return render(request, 'restaurantMgr/menuitem_creation_page.html', context)
 
     else:
         form = MenuItemCreationForm()
-        context = {'form': form, 'restaurant': restaurant}
+        context = {'form': form}
         return render(request, 'restaurantMgr/menuitem_creation_page.html', context)
 
 @login_required
 def edit_menuitem(request, menuitem_id):
-    restaurant = Restaurant.objects.get(user=request.user)
     menuitem = MenuItem.objects.get(pk=menuitem_id)
     if request.method == 'POST':
         form = MenuItemChangeForm(request.POST, request.FILES, instance=menuitem)
         if form.is_valid():
             form.save()
-            return redirect('restaurantMgr:manageMenu', restaurant.id)
+            return redirect('restaurantMgr:manageMenu')
         else:
-            context = {'form': form, 'restaurant': restaurant}
+            context = {'form': form}
             return render(request, 'restaurantMgr/menuitem_change_page.html', context)
     else:
         form = MenuItemChangeForm(instance=menuitem)
-        context = {
-            'restaurant': restaurant,
-            'form': form}
+        context = {'form': form}
         return render(request, 'restaurantMgr/menuitem_change_page.html', context)
 
 @login_required
 def delete_menuitem(request, menuitem_id):
     if request.method == 'GET':
         menuitem = MenuItem.objects.get(pk=menuitem_id)
-        restaurant = Restaurant.objects.get(user=request.user)
-        # menuitem.delete()
         menuitem.is_active = False
         menuitem.save()
-        return redirect('restaurantMgr:manageMenu', restaurant.id)
+        return redirect('restaurantMgr:manageMenu')
 
 @login_required
 def restore_menuitem(request, menuitem_id):
     if request.method == 'GET':
         menuitem = MenuItem.objects.get(pk=menuitem_id)
-        restaurant = Restaurant.objects.get(user=request.user)
         menuitem.is_active = True
         menuitem.save()
-        return redirect('restaurantMgr:manageMenu', restaurant.id)
+        return redirect('restaurantMgr:manageMenu')
 
 @login_required
-def edit_restaurant(request, restaurant_id):
-    restaurant = Restaurant.objects.get(user=request.user)
+def edit_restaurant(request):
+    restaurant = Restaurant.objects.get(pk=request.session['restaurant_id'])
     if request.method == 'POST':
         form = RestaurantChangeForm(request.POST, request.FILES, instance=restaurant)
         if form.is_valid():
             form.save()
-            return redirect('restaurantMgr:editRestaurant', restaurant.id)
+            return redirect('restaurantMgr:editRestaurant')
         else:
             form = RestaurantChangeForm(instance=restaurant)
-            context = {'restaurant': restaurant,
-                    'form': form}
+            context = {'form': form}
             return render(request, 'restaurantMgr/restaurant_change_page.html', context)
 
     else:
         form = RestaurantChangeForm(instance=restaurant)
-        context = {'restaurant': restaurant,
-                'form': form}
+        context = {'form': form}
         return render(request, 'restaurantMgr/restaurant_change_page.html', context)
 
 @login_required

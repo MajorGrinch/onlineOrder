@@ -26,7 +26,7 @@
 {% block js_content %}
 <script>
     $('#esc_btn').click(function(){
-        location.href = "{% url 'restaurantMgr:manageMenu' restaurant.id %}";
+        location.href = "{% url 'restaurantMgr:manageMenu' %}";
     });
 </script>
 {% endblock %}
