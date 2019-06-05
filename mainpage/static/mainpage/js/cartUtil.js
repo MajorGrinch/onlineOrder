@@ -121,6 +121,7 @@ Vue.component('restaurant-card', {
             // this.$emit('update-cart');
             restaurant['subtotal'] = subtotal;
             this.saveCart2Cookie();
+            syncCart();
             return subtotal;
         },
         getItemQuantity(){

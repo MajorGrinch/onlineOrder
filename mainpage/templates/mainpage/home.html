@@ -84,8 +84,10 @@
 
 {% block js_content %}
 <script>
-    {% if user.is_authenticated %}
-    login_logic();
-    {% endif %}
+    $(document).ready(function(){
+        {% if user.is_authenticated %}
+        syncCart();
+        {% endif %}
+    });
 </script>
 {% endblock %}

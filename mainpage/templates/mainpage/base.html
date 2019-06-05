@@ -64,7 +64,7 @@
 
                 {% else %}
                 <li class="nav-item">
-                    <a class="nav-link" href="{% url 'authenticate:login' %}" id="login_btn">Login</a>
+                    <a class="nav-link" href="{% url 'authenticate:login' %}">Login</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'authenticate:register' %}">Register</a>
@@ -112,6 +112,8 @@
         {% if user.is_authenticated %}
         Cookies.set('current_user', "{{user.username}}");
         {% endif %}
+
+        // get cart from cookies
         function getCart() {
             var username = Cookies.get('current_user');
             var cart = Cookies.getJSON(username+'-cart');
@@ -121,12 +123,14 @@
             return cart;
         }
 
+        // remove the cart in the cookies
         function flushCart(){
             var username = Cookies.get('current_user');
             Cookies.remove(username + '-cart');
             console.log(username + '-cart');
         }
 
+        // remove the cart content stored in the db and cookies
         $("#flush_cart_btn").click(function(){
             var confirmation = window.confirm("You sure to empty your shopping cart?");
             if(!confirmation){
@@ -143,17 +147,16 @@
             })
         });
 
+        // clear cookies after logout
         function clearCookies(){
             curr_user = Cookies.get('current_user');
             Cookies.remove(curr_user+'-cart');
             Cookies.remove('current_user');
             Cookies.remove('csrftoken');
-            Cookies.remove('base_url');
         }
 
         function logout_logic(){
             console.log('Do logout logic');
-            // if(Cookies.)
             syncCartToServer().then(function(result){
                 if(result === 'Cart synced'){
                     clearCookies();
@@ -161,26 +164,20 @@
             });
         }
 
-        function login_logic(){
-            syncCartFromServer().then(function(data){
-                console.log(data);
-                if(data === 'Cart synced'){
-                    // base_url = window.location.origin;
-                    Cookies.set('base_url', window.location.origin);
-                }
-            })
-        }
 
         $('#logout_btn').click(logout_logic);
 
         function syncCartFromServer(){
             curr_user = Cookies.get('current_user');
             cart_key = curr_user + '-cart';
-            return $.get('sync_cart/')
+            return $.get(base_url+'/sync_cart/')
             .then(function(data){
+                // console.log(data);
                 if(data === ''){
-                    Cookies.set(cart_key, "{}");
+                    console.log('Cart on Server is empty. Init with {}')
+                    Cookies.set(cart_key, {});
                 }else{
+                    console.log('Cart on Server is: ' + data);
                     Cookies.set(cart_key, data);
                 }
                 return 'Cart synced';
@@ -191,19 +188,56 @@
             curr_user = Cookies.get('current_user');
             cart = Cookies.get(curr_user + '-cart');
             if(cart === undefined){
-                return;
+                return 'Failed';
             }
             return $.post(base_url+'/sync_cart/', {
                 csrfmiddlewaretoken: Cookies.get('csrftoken'),
                 cart: cart
             }).then(function(data){
                 if(data === '1'){
+                    console.log('Pushed');
                     return 'Cart synced';
                 }
             })
         }
+
+        /*
+        synchronize cart between client-side cookies and server-side db.
+        First, synchronize the local cookies which stores the cart data to the server.
+        Second, pull the data from
+        */
+        function syncCart(){
+            var base_url = window.location.origin;
+            const promise1 = new Promise(function(resolve, reject){
+                curr_user = Cookies.get('current_user');
+                cart = Cookies.get(curr_user + '-cart');
+                if(cart === undefined){
+                    resolve('Local Null');
+                    return;
+                }else{
+                    console.log(base_url);
+                    $.post(base_url+'/sync_cart/', {
+                        csrfmiddlewaretoken: Cookies.get('csrftoken'),
+                        cart: cart
+                    }).then(function(data){
+                        if(data === '1'){
+                            console.log('Pushed');
+                            reject('Already pushed. No need to get!');
+                        }
+                    })
+                }
+            }).then(function(data){
+                // resolve handler
+                console.log(data);
+                syncCartFromServer();
+            }, function(reason){
+                // reject handler
+                console.log(reason);
+            })
+        }
         $(document).ready(function(){
-            base_url = Cookies.get('base_url');
+            base_url = window.location.origin;
+            Cookies.set('base_url', base_url);
         });
 
     </script>
