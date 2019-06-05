@@ -67,14 +67,16 @@ def addToCart(request):
         else:
             return JsonResponse(ret_obj)
 
+@login_required
 def flushCart(request):
     try:
-        if 'cart' in request.session.keys():
-            request.session.pop('cart')
+        user = request.user
+        user.cart_text = ''
+        user.save()
+        return HttpResponse(1)
     except:
         return HttpResponse(0)
-    else:
-        return HttpResponse(1)
+
 
 def cart_detail(request):
     """get will redirect to cart detail page
@@ -244,3 +246,14 @@ def confirm_delivery(request):
             return HttpResponse(1)
         except:
             return HttpResponse(0)
+
+@login_required
+def sync_cart(request):
+    if request.method == 'GET':
+        user = request.user
+        return HttpResponse(user.cart_text)
+    elif request.method == 'POST':
+        user = request.user
+        user.cart_text = request.POST['cart']
+        user.save()
+        return HttpResponse(1)

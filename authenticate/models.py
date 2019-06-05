@@ -28,6 +28,7 @@ class User(AbstractBaseUser):
     is_active = models.BooleanField(default=True)
     is_restaurant = models.BooleanField(default=False)
     is_admin = models.BooleanField(default=False)
+    cart_text = models.TextField(blank=True)
     REQUIRED_FIELDS = ['email',]
 
     class Meta:

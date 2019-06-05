@@ -81,3 +81,11 @@
 {% endif %}
 
 {% endblock %}
+
+{% block js_content %}
+<script>
+    {% if user.is_authenticated %}
+    login_logic();
+    {% endif %}
+</script>
+{% endblock %}

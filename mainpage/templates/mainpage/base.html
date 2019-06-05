@@ -64,7 +64,7 @@
 
                 {% else %}
                 <li class="nav-item">
-                    <a class="nav-link" href="{% url 'authenticate:login' %}">Login</a>
+                    <a class="nav-link" href="{% url 'authenticate:login' %}" id="login_btn">Login</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'authenticate:register' %}">Register</a>
@@ -108,6 +108,7 @@
     <script src="{% static 'mainpage/js/jquery-3.4.1.js' %}"></script>
     <script src="{% static 'mainpage/js/js.cookie.js' %}"></script>
     <script>
+        var base_url;
         {% if user.is_authenticated %}
         Cookies.set('current_user', "{{user.username}}");
         {% endif %}
@@ -131,9 +132,8 @@
             if(!confirmation){
                 return;
             }
-            $.post("{% url 'mainpage:flushCart' %}", {
-                csrfmiddlewaretoken: Cookies.get('csrftoken')
-            }).done(function(data){
+            $.get("{% url 'mainpage:flushCart' %}")
+            .done(function(data){
                 if(data === '1'){
                     flushCart();
                     alert('Cart flushed!');
@@ -144,14 +144,66 @@
         });
 
         function clearCookies(){
+            curr_user = Cookies.get('current_user');
+            Cookies.remove(curr_user+'-cart');
             Cookies.remove('current_user');
             Cookies.remove('csrftoken');
+            Cookies.remove('base_url');
         }
 
-        $('#logout_btn').click(clearCookies);
+        function logout_logic(){
+            console.log('Do logout logic');
+            // if(Cookies.)
+            syncCartToServer().then(function(result){
+                if(result === 'Cart synced'){
+                    clearCookies();
+                }
+            });
+        }
+
+        function login_logic(){
+            syncCartFromServer().then(function(data){
+                console.log(data);
+                if(data === 'Cart synced'){
+                    // base_url = window.location.origin;
+                    Cookies.set('base_url', window.location.origin);
+                }
+            })
+        }
+
+        $('#logout_btn').click(logout_logic);
+
+        function syncCartFromServer(){
+            curr_user = Cookies.get('current_user');
+            cart_key = curr_user + '-cart';
+            return $.get('sync_cart/')
+            .then(function(data){
+                if(data === ''){
+                    Cookies.set(cart_key, "{}");
+                }else{
+                    Cookies.set(cart_key, data);
+                }
+                return 'Cart synced';
+            });
+        }
+
+        function syncCartToServer(){
+            curr_user = Cookies.get('current_user');
+            cart = Cookies.get(curr_user + '-cart');
+            if(cart === undefined){
+                return;
+            }
+            return $.post(base_url+'/sync_cart/', {
+                csrfmiddlewaretoken: Cookies.get('csrftoken'),
+                cart: cart
+            }).then(function(data){
+                if(data === '1'){
+                    return 'Cart synced';
+                }
+            })
+        }
         $(document).ready(function(){
-            var base_url = window.location.origin;
-            Cookies.set('base_url', base_url);
+            base_url = Cookies.get('base_url');
         });
 
     </script>

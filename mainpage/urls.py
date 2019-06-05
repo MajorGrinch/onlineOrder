@@ -19,4 +19,5 @@ urlpatterns = [
     path('order_management/', views.order_list, name="manageOrder"),
     path('get_order_detail/<int:order_id>/', views.get_order_detail, name="getOrderDetail"),
     path('confirm_delivery/', views.confirm_delivery, name="confirmDelivery"),
+    path('sync_cart/', views.sync_cart, name="syncCart"),
 ]
