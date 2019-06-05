@@ -145,10 +145,15 @@ Vue.component('restaurant-card', {
             {
                 headers: {'X-CSRFToken': Cookies.get('csrftoken')}
             }).then(response => {
-                var restaurant_id = response.bodyText;
-                console.log('delete ' + restaurant_id);
-                Vue.delete(this.cart, restaurant_id);
-                this.saveCart2Cookie();
+                if(response.bodyText == 'No address choosed'){
+                    // alert("You haven't set a address");
+                }
+                else{
+                    var restaurant_id = response.bodyText;
+                    console.log('delete ' + restaurant_id);
+                    Vue.delete(this.cart, restaurant_id);
+                    this.saveCart2Cookie();
+                }
                 location.reload();
             }, response => {
                 console.log(response);

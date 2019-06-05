@@ -22,6 +22,8 @@ Here I use the jumbotron in bootrap to show the logo as well as top 2 sellers of
 
 ![restaurant menu](demo_image/restaurant_page.png)
 
+In the cart, you can see all the foods that have been added to the cart and change the quantities. After you make your decision, you can place the order.
+
 ![shopping cart](demo_image/shopping_cart.png)
 
 Apart from the above core functionality, you can manage your addresses and your placed orders. If you hold a restaurant, you can manage your restaurant by click the Account -> My Restaurant, which I would introduce in the dashboard app. If you are not a restaurant, you can create a restaurant and from then on you restaurant would also be shown on the website.

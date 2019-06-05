@@ -10,6 +10,7 @@ from .forms import AddressCreationForm, AddressChangeForm
 from django.core.serializers import serialize
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
+from django.core.exceptions import ObjectDoesNotExist
 
 # Create your views here.
 
@@ -187,12 +188,16 @@ def place_order(request):
         data = json.loads(request.body)
         address_id = data['address_id']
         if address_id == None:
-            address_id = Address.objects.get(user=request.user, is_default=True).id
+            try:
+                address_id = Address.objects.get(user=request.user, is_default=True).id
+            except ObjectDoesNotExist:
+                messages.success(request,'No address selected or default address. Order cannot be processed')
+                return HttpResponse('No address choosed')
+
         restaurant_cart = data['restaurant_cart']
         restaurant_id = int(restaurant_cart['id'][11:])
         user_id = request.user.id
-        # address = Address.objects.get(user_id=user_id, is_default=True)
-        order = Order(order_num='{:%Y%m%d%H%M%S}-{:d}'.format(timezone.now(), user_id),
+        order = Order.objects.create(order_num='{:%Y%m%d%H%M%S}-{:d}'.format(timezone.now(), user_id),
                 subtotal=restaurant_cart['subtotal'], user_id=user_id, restaurant_id=restaurant_id,
                 address_id=address_id)
         order.save()
