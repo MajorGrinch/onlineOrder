@@ -14,6 +14,7 @@ urlpatterns = [
     path('delete_address/', views.delete_address, name="delAddress"),
     path('edit_address/<int:address_id>/', views.edit_address, name="editAddress"),
     path('get_restaurant_info/<int:restaurant_id>/',views.get_restaurant_info, name="getRestaurantInfo"),
+    path('get_address_list/', views.get_address_list, name="getAddressList"),
     path('place_order/', views.place_order, name="placeOrder"),
     path('order_management/', views.order_list, name="manageOrder"),
     path('get_order_detail/<int:order_id>/', views.get_order_detail, name="getOrderDetail"),

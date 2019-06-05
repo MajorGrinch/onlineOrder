@@ -160,9 +160,8 @@ Vue.component('restaurant-card', {
             })
         },
         getAddressList(restaurant_id){
-            this.$http.post(this.root_url + '/cart_detail/', {}, {
-                headers: {'X-CSRFToken': Cookies.get('csrftoken')}
-            }).then(response => {
+            this.$http.get(this.root_url + '/get_address_list/'
+            ).then(response => {
                 console.log(response.body);
                 var data = response.body;
                 this.address_list = []

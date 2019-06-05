@@ -7,10 +7,11 @@ import json
 from django.contrib import messages
 from django.db import transaction
 from .forms import AddressCreationForm, AddressChangeForm
-from django.core.serializers import serialize
+from django.core.serializers import serialize, deserialize
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.core.exceptions import ObjectDoesNotExist
+from django.http import JsonResponse
 
 # Create your views here.
 
@@ -50,7 +51,7 @@ def get_restaurant_info(request, restaurant_id):
     if request.method == 'GET':
         restaurant = Restaurant.objects.get(pk=restaurant_id)
         context = {'name': restaurant.name, 'delivering_fee': restaurant.delivering_fee}
-        return HttpResponse(json.dumps(context))
+        return JsonResponse(context)
 
 def addToCart(request):
     if request.method == 'POST':
@@ -64,7 +65,7 @@ def addToCart(request):
         except:
             return HttpResponse(0)
         else:
-            return HttpResponse(json.dumps(ret_obj))
+            return JsonResponse(ret_obj)
 
 def flushCart(request):
     try:
@@ -81,21 +82,12 @@ def cart_detail(request):
        when use click the address button
     """
     if request.method == 'GET':
-        return render(request, 'mainpage/cart_detail.html', {})
-    if request.method == 'POST':
-        address_list = Address.objects.filter(user=request.user)
-        return HttpResponse(serialize('json', address_list))
+        return render(request, 'mainpage/cart_detail.html')
 
-
-def place_order(request):
-    curr_user = request.user.id
-    subtotal = int(request.POST['subtotal'])
-    restaurant_id = request.POST['restaurant_id']
-    address_id = request.POST['address_id']
-    o = Order(order_num='{:%Y%m%d%H%M%S}-{:d}'.format(timezone.now(), 22),
-            subtotal=subtotal, user=curr_user, restaurant_id=restaurant_id,
-            address_id=address_id)
-    return HttpResponse(1)
+@login_required
+def get_address_list(request):
+    address_list = Address.objects.filter(user=request.user)
+    return HttpResponse(serialize('json', address_list))
 
 
 def manage_address(request):
@@ -121,9 +113,14 @@ def set_default_address(request):
         data = json.loads(request.body)
         address_id = data['address_id']
         new_default_address = Address.objects.get(pk=address_id)
-        old_default_address = Address.objects.get(user=request.user, is_default=True)
-        old_default_address.is_default = False
-        old_default_address.save()
+        try:
+            with transaction.atomic():
+                old_default_address = Address.objects.get(user=request.user, is_default=True)
+                old_default_address.is_default = False
+                old_default_address.save()
+        except Address.DoesNotExist:
+            print('No default address. SKIP.')
+
         new_default_address.is_default = True
         new_default_address.save()
         messages.success(request, 'Set successfully')
@@ -230,7 +227,8 @@ def get_order_detail(request, order_id):
     orderitem_list = []
     for orderitem in orderitems:
         menuitem = orderitem.menuitem
-        orderitem_list.append({'image': menuitem.image.name, 'title': menuitem.title,
+        orderitem_list.append({'image': menuitem.image.name,
+                                'title': menuitem.title,
                                 'unit_price': orderitem.unit_price,
                                 'quantity': orderitem.quantity, 'restaurant_id': menuitem.restaurant.id} )
     return HttpResponse(json.dumps(orderitem_list))

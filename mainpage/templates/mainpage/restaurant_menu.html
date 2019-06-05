@@ -68,7 +68,8 @@
         }).done(function (data) {
                 if (data !== '0') {
                     console.log(data);
-                    var item_info = JSON.parse(data);
+                    // var item_info = JSON.parse(data);
+                    var item_info = data;
                     console.log(item_info);
                     addToCart("restaurant-{{restaurant_id}}", "menu-"+menu_item_id, item_info, "{{restaurant_name}}", "{{user.username}}");
                 } else {
@@ -85,7 +86,8 @@
         $.get("{% url 'mainpage:getRestaurantInfo' restaurant_id %}")
         .done(function(data){
             console.log(data);
-            restaurant_info = JSON.parse(data);
+            // restaurant_info = JSON.parse(data);
+            restaurant_info = data
             cart = getCart();
             key_restaurant = 'restaurant-' + "{{restaurant_id}}";
             cart[key_restaurant]['delivering_fee'] = restaurant_info['delivering_fee'];
