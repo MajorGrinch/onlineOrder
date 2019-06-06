@@ -11,7 +11,7 @@ from .forms import MenuItemCreationForm, MenuItemChangeForm, RestaurantChangeFor
 @login_required
 def index(request):
     restaurant = Restaurant.objects.get(user=request.user)
-    orders_all = Order.objects.filter(user=request.user)
+    orders_all = Order.objects.filter(restaurant=restaurant)
     orders_pending = orders_all.filter(status=0)
     orders_delivered = orders_all.filter(status=2)
     orders_confirmed = orders_all.filter(status=1)
