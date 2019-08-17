@@ -4,3 +4,4 @@ migrations/
 restaurantMgr/static/
 media/
 .vscode/
+env_onlineOrder/
