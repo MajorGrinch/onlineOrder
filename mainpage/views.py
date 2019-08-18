@@ -240,7 +240,8 @@ def place_order(request):
 
 def order_list(request):
     if request.method == 'GET':
-        all_orders = Order.objects.filter(user=request.user).order_by('-order_time')
+        all_orders = Order.objects.filter(
+            user=request.user).order_by('-order_time')
         order_length = all_orders.count()
         all_orders_paged = Paginator(all_orders, 5)
         page_id = int(request.GET['page'])
@@ -255,9 +256,13 @@ def order_history(request):
         user = request.user
         orderlist_id = user.orderlist_id
         if orderlist_id != '':
-            user_orderlist = db.order.find_one({'_id': ObjectId(orderlist_id)}, {'_id': 0})
+            user_orderlist = db.order.find_one({'_id': ObjectId(orderlist_id)},
+                                               {'_id': 0})
             context = {'order_list': user_orderlist['order_list']}
             return render(request, 'mainpage/order_history.html', context)
+        else:
+            return render(request, 'mainpage/order_history.html',
+                          {'order_list': []})
 
 
 @login_required
@@ -336,9 +341,9 @@ def confirm_delivery(request):
             order_json["item_list"] = orderitem_list
             print(order_json)
             result = db.order.update_one({'_id': ObjectId(orderlist_id)},
-                                {'$push': {
-                                    'order_list': order_json
-                                }})
+                                         {'$push': {
+                                             'order_list': order_json
+                                         }})
             if result.modified_count == 1:
                 order.delete()
             return HttpResponse(1)

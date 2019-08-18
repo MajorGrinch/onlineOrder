@@ -5,8 +5,11 @@ from django.utils.decorators import method_decorator
 from django.views.generic import DetailView, ListView
 from django.http import HttpResponse
 from .forms import MenuItemCreationForm, MenuItemChangeForm, RestaurantChangeForm, RestaurantCreationForm
+from pymongo import MongoClient
+from bson.objectid import ObjectId
 
 # Create your views here.
+
 
 @login_required
 def index(request):
@@ -16,10 +19,12 @@ def index(request):
     orders_delivered = orders_all.filter(status=2)
     orders_confirmed = orders_all.filter(status=1)
     request.session['restaurant_id'] = restaurant.id
-    context = {'orders_pending': orders_pending,
-                'orders_delivered': orders_delivered, 'orders_confirmed': orders_confirmed}
+    context = {
+        'orders_pending': orders_pending,
+        'orders_delivered': orders_delivered,
+        'orders_confirmed': orders_confirmed
+    }
     return render(request, 'restaurantMgr/index.html', context)
-
 
 
 class OrderDetailView(DetailView):
@@ -33,7 +38,8 @@ class OrderDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['orderitem_list'] = OrderItem.objects.filter(order=self.kwargs['pk'])
+        context['orderitem_list'] = OrderItem.objects.filter(
+            order=self.kwargs['pk'])
         return context
 
     def post(self, request, *args, **kwargs):
@@ -45,8 +51,46 @@ class OrderDetailView(DetailView):
             return HttpResponse("confirm order")
         if action == 'decline':
             order.status = 3
-            order.save()
-            return HttpResponse("decline order")
+            order_dict = {
+                "order_num": order.order_num,
+                "order_id": order.id,
+                "order_time": order.order_time,
+                "subtotal": order.subtotal,
+                "restaurant": str(order.restaurant),
+                "restaurant_id": order.restaurant.id,
+                "address": str(order.address),
+                "status": order.status,
+                "item_list": []
+            }
+            orderitems = OrderItem.objects.filter(order=order)
+            orderitem_list = []
+            for orderitem in orderitems:
+                menuitem = orderitem.menuitem
+                orderitem_list.append({
+                    'image': menuitem.image.name,
+                    'title': menuitem.title,
+                    'unit_price': orderitem.unit_price,
+                    'quantity': orderitem.quantity,
+                    'restaurant_id': menuitem.restaurant.id
+                })
+            order_dict["item_list"] = orderitem_list
+            # order.save()
+            db = MongoClient().takeout
+            order_user = order.user
+            orderlist_id = order_user.orderlist_id
+            if orderlist_id == '':
+                orderlist_id = db.order.insert_one({
+                    'order_list': []
+                }).inserted_id
+                order_user.orderlist_id = orderlist_id
+                order_user.save()
+            result = db.order.update_one({'_id': ObjectId(orderlist_id)},
+                                         {'$push': {
+                                             'order_list': order_dict
+                                         }})
+            if result.modified_count == 1:
+                order.delete()
+                return HttpResponse("decline order")
         return HttpResponse(1)
 
 
@@ -64,7 +108,6 @@ class MenuItemView(ListView):
         return MenuItem.objects.filter(restaurant=restaurant_id)
 
 
-
 @login_required
 def add_menuitem(request):
     if request.method == 'POST':
@@ -76,28 +119,36 @@ def add_menuitem(request):
             return redirect('restaurantMgr:manageMenu')
         else:
             context = {'form': form}
-            return render(request, 'restaurantMgr/menuitem_creation_page.html', context)
+            return render(request, 'restaurantMgr/menuitem_creation_page.html',
+                          context)
 
     else:
         form = MenuItemCreationForm()
         context = {'form': form}
-        return render(request, 'restaurantMgr/menuitem_creation_page.html', context)
+        return render(request, 'restaurantMgr/menuitem_creation_page.html',
+                      context)
+
 
 @login_required
 def edit_menuitem(request, menuitem_id):
     menuitem = MenuItem.objects.get(pk=menuitem_id)
     if request.method == 'POST':
-        form = MenuItemChangeForm(request.POST, request.FILES, instance=menuitem)
+        form = MenuItemChangeForm(request.POST,
+                                  request.FILES,
+                                  instance=menuitem)
         if form.is_valid():
             form.save()
             return redirect('restaurantMgr:manageMenu')
         else:
             context = {'form': form}
-            return render(request, 'restaurantMgr/menuitem_change_page.html', context)
+            return render(request, 'restaurantMgr/menuitem_change_page.html',
+                          context)
     else:
         form = MenuItemChangeForm(instance=menuitem)
         context = {'form': form}
-        return render(request, 'restaurantMgr/menuitem_change_page.html', context)
+        return render(request, 'restaurantMgr/menuitem_change_page.html',
+                      context)
+
 
 @login_required
 def delete_menuitem(request, menuitem_id):
@@ -107,6 +158,7 @@ def delete_menuitem(request, menuitem_id):
         menuitem.save()
         return redirect('restaurantMgr:manageMenu')
 
+
 @login_required
 def restore_menuitem(request, menuitem_id):
     if request.method == 'GET':
@@ -115,23 +167,29 @@ def restore_menuitem(request, menuitem_id):
         menuitem.save()
         return redirect('restaurantMgr:manageMenu')
 
+
 @login_required
 def edit_restaurant(request):
     restaurant = Restaurant.objects.get(pk=request.session['restaurant_id'])
     if request.method == 'POST':
-        form = RestaurantChangeForm(request.POST, request.FILES, instance=restaurant)
+        form = RestaurantChangeForm(request.POST,
+                                    request.FILES,
+                                    instance=restaurant)
         if form.is_valid():
             form.save()
             return redirect('restaurantMgr:editRestaurant')
         else:
             form = RestaurantChangeForm(instance=restaurant)
             context = {'form': form}
-            return render(request, 'restaurantMgr/restaurant_change_page.html', context)
+            return render(request, 'restaurantMgr/restaurant_change_page.html',
+                          context)
 
     else:
         form = RestaurantChangeForm(instance=restaurant)
         context = {'form': form}
-        return render(request, 'restaurantMgr/restaurant_change_page.html', context)
+        return render(request, 'restaurantMgr/restaurant_change_page.html',
+                      context)
+
 
 @login_required
 def create_restaurant(request):
@@ -148,9 +206,11 @@ def create_restaurant(request):
         else:
             form = RestaurantCreationForm(instance=restaurant)
             context = {'form': form}
-            return render(request, 'restaurantMgr/restaurant_creation_page.html', context)
+            return render(request,
+                          'restaurantMgr/restaurant_creation_page.html',
+                          context)
     else:
         form = RestaurantCreationForm()
         context = {'form': form}
-        return render(request, 'restaurantMgr/restaurant_creation_page.html', context)
-
+        return render(request, 'restaurantMgr/restaurant_creation_page.html',
+                      context)
