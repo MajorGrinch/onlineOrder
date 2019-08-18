@@ -1,0 +1,66 @@
+{% extends 'mainpage/base.html' %}
+{% load static %}
+
+{% block css_content %}
+{% endblock %}
+
+{% block content %}
+
+<br />
+<!-- the orders are sorted accroding to last update time -->
+<div id="orderlist_app_div">
+    {% for order in order_list %}
+    <div class="card">
+        <div class="card-header">
+            <div class="row">
+                <div class="col text-left">
+                    {% if order.status is 2%}
+                        <b>Delivered</b>
+                    {% elif order.status is 3%}
+                        <b>Declined by the restaurant</b>
+                    {% endif %}
+                </div>
+                <div class="col text-right">
+                    <span class="text-right">Order# {{order.order_num}}</span>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            {% for order_item in order.item_list %}
+            <div class="card mb-3" style="max-width: 100%;">
+                <div class="row no-gutters">
+                    <div class="col-md-3">
+                        <img style="height:12rem;" class="card-img" alt="#" src="{{MEDIA_URL}}{{order_item.image}}">
+                    </div>
+                    <div class="col-md-9">
+                        <div class="card-body">
+                            <h5 class="card-title"><a href="/restaurant_menu/{{order_item.restaurant_id}}">{{order_item.title}}</a></h5>
+                            <p class="card-text">Unit price ${{order_item.unit_price}}</p>
+                            <p class="card-text">Quantity &times; <b>{{order_item.quantity}}</b></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="card-footer">
+            <div class="row">
+                <div class="col text-left">
+                    <span class="subtotal_span">Subtotal: {{order.subtotal}}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    </br>
+    {% endfor %}
+
+</div>
+
+
+
+{% endblock %}
+
+
+{% block js_content %}
+
+{% endblock %}

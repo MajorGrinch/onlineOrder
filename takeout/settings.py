@@ -26,8 +26,8 @@ DEBUG = True
 
 # ALLOWED_HOSTS = []
 ALLOWED_HOSTS = [
-    "192.168.1.5", "127.0.0.1", "takeout.majorkevin.xyz", "174.138.55.128",
-    'testserver'
+    "127.0.0.1", "takeout.majorkevin.xyz", "174.138.55.128",
+    'testserver', "10.0.0.66"
 ]
 
 # Application definition

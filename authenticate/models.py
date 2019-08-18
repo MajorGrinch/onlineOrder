@@ -1,7 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 
-# Create your models here.
 
 class UserManager(BaseUserManager):
     def create_user(self, username, email, password):
@@ -19,6 +18,7 @@ class UserManager(BaseUserManager):
         user.save()
         return user
 
+
 class User(AbstractBaseUser):
     username = models.CharField(max_length=40, unique=True)
     USERNAME_FIELD = 'username'
@@ -29,11 +29,11 @@ class User(AbstractBaseUser):
     is_restaurant = models.BooleanField(default=False)
     is_admin = models.BooleanField(default=False)
     cart_text = models.TextField(blank=True)
-    REQUIRED_FIELDS = ['email',]
+    orderlist_id = models.CharField(max_length=255, blank=True)
+    REQUIRED_FIELDS = ['email', ]
 
     class Meta:
         db_table = 'user'
 
     def __str__(self):
         return '{name}--{id}'.format(name=self.username, id=self.id)
-

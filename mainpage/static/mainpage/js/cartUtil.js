@@ -147,7 +147,7 @@ Vue.component('restaurant-card', {
                 headers: {'X-CSRFToken': Cookies.get('csrftoken')}
             }).then(response => {
                 if(response.bodyText == 'No address choosed'){
-                    // alert("You haven't set a address");
+                    // alert("You haven't choose a address");
                 }
                 else{
                     var restaurant_id = response.bodyText;

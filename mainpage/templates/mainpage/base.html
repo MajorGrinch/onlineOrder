@@ -54,8 +54,14 @@
                         {% endif %}
                     </div>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'mainpage:manageOrder' %}?page=1">Orders</a>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="orderDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Order
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="orderDropdown">
+                        <a class="dropdown-item" href="{% url 'mainpage:manageOrder' %}?page=1">Active Orders</a>
+                        <a class="dropdown-item" href="{% url 'mainpage:getOrderHistory' %}">Archived Orders</a>
+                    </div>
                 </li>
 
                 <li class="nav-item">

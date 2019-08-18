@@ -1,4 +1,4 @@
-from django.shortcuts import render, get_object_or_404, redirect, get_list_or_404
+from django.shortcuts import render, redirect
 from django.views.generic import ListView
 from django.utils import timezone
 from .models import Restaurant, MenuItem, Order, OrderItem, Address
@@ -7,20 +7,28 @@ import json
 from django.contrib import messages
 from django.db import transaction
 from .forms import AddressCreationForm, AddressChangeForm
-from django.core.serializers import serialize, deserialize
+from django.core.serializers import serialize
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import JsonResponse
+from pymongo import MongoClient
+from bson.objectid import ObjectId
+from django.core.serializers.json import DjangoJSONEncoder
 
 # Create your views here.
+
 
 def home(request):
     if request.method == 'GET':
         restaurant_list = Restaurant.objects.all()
         top2_restaurants = Restaurant.objects.order_by('-rating')[:2]
-        context = {'restaurant_list': restaurant_list, 'top2_restaurants': top2_restaurants}
+        context = {
+            'restaurant_list': restaurant_list,
+            'top2_restaurants': top2_restaurants
+        }
         return render(request, 'mainpage/home.html', context)
+
 
 class RestaurantListView(ListView):
     model = Restaurant
@@ -28,21 +36,20 @@ class RestaurantListView(ListView):
     context_object_name = 'restaurant_list'
 
 
-
 class MenuView(ListView):
     model = MenuItem
     template_name = 'mainpage/restaurant_menu.html'
     context_object_name = 'menuitem_list'
 
-
     def get_queryset(self):
-        # self.restaurant = get_object_or_404(Restaurant, id=self.kwargs['restaurant_id'])
-        return MenuItem.objects.filter(restaurant=self.kwargs['restaurant_id'], is_active=True)
+        return MenuItem.objects.filter(restaurant=self.kwargs['restaurant_id'],
+                                       is_active=True)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['restaurant_id'] = self.kwargs['restaurant_id']
-        context['restaurant_name'] = Restaurant.objects.get(pk=int(self.kwargs['restaurant_id'])).name
+        context['restaurant_name'] = Restaurant.objects.get(
+            pk=int(self.kwargs['restaurant_id'])).name
         # print(context)
         return context
 
@@ -50,8 +57,12 @@ class MenuView(ListView):
 def get_restaurant_info(request, restaurant_id):
     if request.method == 'GET':
         restaurant = Restaurant.objects.get(pk=restaurant_id)
-        context = {'name': restaurant.name, 'delivering_fee': restaurant.delivering_fee}
+        context = {
+            'name': restaurant.name,
+            'delivering_fee': restaurant.delivering_fee
+        }
         return JsonResponse(context)
+
 
 def addToCart(request):
     if request.method == 'POST':
@@ -61,11 +72,16 @@ def addToCart(request):
             item_price = menu_item.price
             item_title = menu_item.title
             item_image = menu_item.image.name
-            ret_obj = {'price': item_price, 'title': item_title, 'image': item_image}
-        except:
+            ret_obj = {
+                'price': item_price,
+                'title': item_title,
+                'image': item_image
+            }
+        except Exception:
             return HttpResponse(0)
         else:
             return JsonResponse(ret_obj)
+
 
 @login_required
 def flushCart(request):
@@ -74,7 +90,7 @@ def flushCart(request):
         user.cart_text = ''
         user.save()
         return HttpResponse(1)
-    except:
+    except Exception:
         return HttpResponse(0)
 
 
@@ -86,6 +102,7 @@ def cart_detail(request):
     if request.method == 'GET':
         return render(request, 'mainpage/cart_detail.html')
 
+
 @login_required
 def get_address_list(request):
     address_list = Address.objects.filter(user=request.user)
@@ -94,19 +111,11 @@ def get_address_list(request):
 
 def manage_address(request):
     if request.method == 'GET':
-        user_addresses = Address.objects.filter(user=request.user, is_active=True)
+        user_addresses = Address.objects.filter(user=request.user,
+                                                is_active=True)
         context = {'addresses': user_addresses}
         return render(request, 'mainpage/address_management.html', context)
 
-def cancal_default_address(request):
-    if request.method == 'POST':
-        try:
-            address_id = request.POST['address_id']
-            address = Address.objects.get(pk=address_id)
-            address.is_default = False
-            return HttpResponse(1)
-        except:
-            return HttpResponse(0)
 
 @transaction.atomic
 def set_default_address(request):
@@ -116,8 +125,12 @@ def set_default_address(request):
         address_id = data['address_id']
         new_default_address = Address.objects.get(pk=address_id)
         try:
+            """
+            if the request user has default address, unmark it first
+            """
             with transaction.atomic():
-                old_default_address = Address.objects.get(user=request.user, is_default=True)
+                old_default_address = Address.objects.get(user=request.user,
+                                                          is_default=True)
                 old_default_address.is_default = False
                 old_default_address.save()
         except Address.DoesNotExist:
@@ -132,15 +145,15 @@ def set_default_address(request):
 def add_address(request):
     """add a address for the current user"""
     if request.method == 'POST':
-        try:
-            form = AddressCreationForm(request.POST)
-            if form.is_valid():
-                new_address = form.save(commit=False)
-                new_address.user = request.user
-                new_address.save()
-                return redirect('mainpage:manageAddress')
-        except:
-            return render(request, 'mainpage/address_creation_page.html', {'form': form})
+        form = AddressCreationForm(request.POST)
+        if form.is_valid():
+            new_address = form.save(commit=False)
+            new_address.user = request.user
+            new_address.save()
+            return redirect('mainpage:manageAddress')
+        else:
+            return render(request, 'mainpage/address_creation_page.html',
+                          {'form': form})
     else:
         form = AddressCreationForm()
         context = {'form': form}
@@ -162,9 +175,8 @@ def delete_address(request):
             return HttpResponse(1)
         except ValueError as e:
             return HttpResponse(e)
-        except:
+        except Exception:
             return HttpResponse(0)
-
 
 
 def edit_address(request, address_id):
@@ -175,38 +187,53 @@ def edit_address(request, address_id):
             form.save()
             return redirect('mainpage:manageAddress')
         else:
-            return render(request, 'mainpage/address_change_page.html', {'form': form})
+            return render(request, 'mainpage/address_change_page.html',
+                          {'form': form})
     else:
         address = Address.objects.get(pk=address_id)
         form = AddressChangeForm(instance=address)
-        return render(request, 'mainpage/address_change_page.html', {'form': form})
+        return render(request, 'mainpage/address_change_page.html',
+                      {'form': form})
+
 
 @transaction.atomic
 def place_order(request):
     if request.method == 'POST':
         data = json.loads(request.body)
-        address_id = data['address_id']
-        if address_id == None:
+        address_id = data.get('address_id')
+        if address_id is None:
             try:
-                address_id = Address.objects.get(user=request.user, is_default=True).id
+                with transaction.atomic():
+                    address_id = Address.objects.get(user=request.user,
+                                                     is_default=True).id
             except ObjectDoesNotExist:
-                messages.success(request,'No address selected or default address. Order cannot be processed')
+                messages.success(
+                    request, """
+                    No address selected or default address.
+                    Order cannot be processed
+                    """)
                 return HttpResponse('No address choosed')
 
         restaurant_cart = data['restaurant_cart']
         restaurant_id = int(restaurant_cart['id'][11:])
         user_id = request.user.id
-        order = Order.objects.create(order_num='{:%Y%m%d%H%M%S}-{:d}'.format(timezone.now(), user_id),
-                subtotal=restaurant_cart['subtotal'], user_id=user_id, restaurant_id=restaurant_id,
-                address_id=address_id)
+        order = Order.objects.create(order_num='{:%Y%m%d%H%M%S}-{:d}'.format(
+            timezone.now(), user_id),
+                                     subtotal=restaurant_cart['subtotal'],
+                                     user_id=user_id,
+                                     restaurant_id=restaurant_id,
+                                     address_id=address_id)
         order.save()
         iteminfo_list = restaurant_cart['iteminfo_list']
         print(iteminfo_list)
+
         for menuitem in iteminfo_list:
             menuitem_id = int(menuitem[5:])
             iteminfo = iteminfo_list[menuitem]
-            orderitem = OrderItem(quantity=iteminfo['quantity'], unit_price=iteminfo['price'],
-                    menuitem_id=menuitem_id, order=order)
+            orderitem = OrderItem(quantity=iteminfo['quantity'],
+                                  unit_price=iteminfo['price'],
+                                  menuitem_id=menuitem_id,
+                                  order=order)
             orderitem.save()
         return HttpResponse(restaurant_cart['id'])
 
@@ -222,6 +249,16 @@ def order_list(request):
         return render(request, 'mainpage/order_management.html', context)
 
 
+def order_history(request):
+    if request.method == 'GET':
+        db = MongoClient().takeout
+        user = request.user
+        orderlist_id = user.orderlist_id
+        if orderlist_id != '':
+            user_orderlist = db.order.find_one({'_id': ObjectId(orderlist_id)}, {'_id': 0})
+            context = {'order_list': user_orderlist['order_list']}
+            return render(request, 'mainpage/order_history.html', context)
+
 
 @login_required
 def get_order_detail(request, order_id):
@@ -229,23 +266,85 @@ def get_order_detail(request, order_id):
     orderitem_list = []
     for orderitem in orderitems:
         menuitem = orderitem.menuitem
-        orderitem_list.append({'image': menuitem.image.name,
-                                'title': menuitem.title,
-                                'unit_price': orderitem.unit_price,
-                                'quantity': orderitem.quantity, 'restaurant_id': menuitem.restaurant.id} )
+        orderitem_list.append({
+            'image': menuitem.image.name,
+            'title': menuitem.title,
+            'unit_price': orderitem.unit_price,
+            'quantity': orderitem.quantity,
+            'restaurant_id': menuitem.restaurant.id
+        })
     return HttpResponse(json.dumps(orderitem_list))
+
+
+@login_required
+def get_completed_orders(request):
+    user = request.user
+    if user.orderlist_id == '':
+        return HttpResponse(json.dumps([]))
+
+    db = MongoClient().takeout
+    user_completed_orders = db.order.find_one(
+        {'_id': ObjectId(user.orderlist_id)}, {'_id': 0})
+    return JsonResponse(user_completed_orders)
+
 
 @login_required
 def confirm_delivery(request):
+    """
+    once the user confirm that they've received the orders, the status of
+    related order should to changed to 2.
+    """
     if request.method == 'POST':
         try:
             order_id = request.POST['order_id']
             order = Order.objects.get(pk=order_id)
             order.status = 2
             order.save()
+            db = MongoClient().takeout
+            user = request.user
+            orderlist_id = user.orderlist_id
+            if orderlist_id == '':
+                orderlist_id = db.order.insert_one({
+                    "order_list": []
+                }).inserted_id
+                user.orderlist_id = orderlist_id
+                user.save()
+
+            print(orderlist_id)
+            order_json = {
+                "order_num": order.order_num,
+                "order_id": order.id,
+                "order_time": order.order_time,
+                "subtotal": order.subtotal,
+                "restaurant": str(order.restaurant),
+                "restaurant_id": order.restaurant.id,
+                "address": str(order.address),
+                "status": order.status,
+                "item_list": []
+            }
+            orderitems = OrderItem.objects.filter(order_id=order_id)
+            orderitem_list = []
+            for orderitem in orderitems:
+                menuitem = orderitem.menuitem
+                orderitem_list.append({
+                    'image': menuitem.image.name,
+                    'title': menuitem.title,
+                    'unit_price': orderitem.unit_price,
+                    'quantity': orderitem.quantity,
+                    'restaurant_id': menuitem.restaurant.id
+                })
+            order_json["item_list"] = orderitem_list
+            print(order_json)
+            result = db.order.update_one({'_id': ObjectId(orderlist_id)},
+                                {'$push': {
+                                    'order_list': order_json
+                                }})
+            if result.modified_count == 1:
+                order.delete()
             return HttpResponse(1)
-        except:
+        except Exception:
             return HttpResponse(0)
+
 
 @login_required
 def sync_cart(request):
