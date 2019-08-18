@@ -69,3 +69,9 @@ Besides this, a seller can also manage their posted food by editing or deleting 
 # Others
 
 I'm still working on the readme page because there are so much to describe. Feel free to check out the link to try the website if you want to know in depth about the project.
+
+## Integrate with MongoDB
+
+I add MongoDB to this project to improve performance in storing the order information. Traditionally, if you want to store order information, you would have 2 tables to store them. One is the information of the order itself, the other one stores the items of the order, by referencing the order table as foreign key. This is pretty much what I can do with relational database and every time I have to query both tables to get the full information of a single order. In some scenarios, SQL is worth considering because it can support transaction which is very important to some operations like place an order. But in some other cases, when you only want to browse your order history, which have already been completed. Then you can just use MongoDB, a document-based NoSQL, to get the information you want.
+
+Normally, NoSQL has a higher performance than SQL and also a different query schema. With MongoDB, all your order history could be stored into a single document in the form of a array along with some other user information, which could be very efficient because it only requires one query. But transaction is one shortcoming of NoSQL, so I would only use MongoDB to store the data which could tolerate some kind of fault.
